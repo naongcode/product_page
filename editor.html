@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>상품 페이지 에디터</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=Noto+Serif+KR:wght@400;700&family=Gowun+Batang:wght@400;700&family=Jua&family=Nanum+Myeongjo:wght@400;700;800&family=Nanum+Square:wght@400;700;800;900&display=swap" rel="stylesheet" />
+
+  <!-- Fabric.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.1/fabric.min.js"></script>
+
+  <link rel="stylesheet" href="css/editor.css" />
+</head>
+<body>
+
+  <!-- 상단 툴바 -->
+  <header class="toolbar">
+    <div class="toolbar-left">
+      <button class="btn-icon" id="btn-back" title="갤러리로">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+      </button>
+      <span class="project-name" id="project-name" contenteditable="true">새 프로젝트</span>
+    </div>
+    <div class="toolbar-center">
+      <button class="btn-icon" id="btn-undo" title="실행취소 (Ctrl+Z)">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7v6h6"/><path d="M21 17a9 9 0 00-9-9 9 9 0 00-6 2.3L3 13"/></svg>
+      </button>
+      <button class="btn-icon" id="btn-redo" title="다시실행 (Ctrl+Y)">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 7v6h-6"/><path d="M3 17a9 9 0 019-9 9 9 0 016 2.3L21 13"/></svg>
+      </button>
+    </div>
+    <div class="toolbar-right">
+      <div class="text-size-control" title="전체 텍스트 크기 조절">
+        <span class="text-size-label">가</span>
+        <button class="btn-icon-sm" id="btn-text-smaller">−</button>
+        <span class="text-size-val" id="text-size-val">—</span>
+        <button class="btn-icon-sm" id="btn-text-larger">+</button>
+      </div>
+      <span class="zoom-label" id="zoom-label">100%</span>
+      <span class="save-status" id="save-status"></span>
+      <button class="btn-danger-soft" id="btn-reset" title="캔버스 전체 초기화">초기화</button>
+      <button class="btn-secondary" id="btn-save">저장 <kbd>Ctrl+S</kbd></button>
+      <button class="btn-primary" id="btn-export">내보내기</button>
+    </div>
+  </header>
+
+  <!-- 메인 레이아웃 -->
+  <div class="editor-layout">
+
+    <!-- 좌측 패널 -->
+    <aside class="panel-left">
+      <div class="panel-tabs">
+        <button class="tab-btn active" data-tab="elements">요소</button>
+        <button class="tab-btn" data-tab="blocks">블록</button>
+        <button class="tab-btn" data-tab="theme">테마</button>
+      </div>
+
+      <!-- 요소 추가 탭 -->
+      <div class="tab-content active" id="tab-elements">
+        <div class="section-label">추가하기</div>
+        <div class="element-buttons">
+          <button class="elem-btn" id="btn-add-image">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+            <span>이미지</span>
+          </button>
+          <button class="elem-btn" id="btn-add-text">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 7V4h16v3M9 20h6M12 4v16"/></svg>
+            <span>텍스트</span>
+          </button>
+          <button class="elem-btn" id="btn-add-rect">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="6" width="18" height="12" rx="1"/></svg>
+            <span>사각형</span>
+          </button>
+          <button class="elem-btn" id="btn-add-circle">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="9"/></svg>
+            <span>원</span>
+          </button>
+          <button class="elem-btn" id="btn-add-line">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="4" y1="12" x2="20" y2="12"/></svg>
+            <span>선</span>
+          </button>
+        </div>
+        <input type="file" id="image-upload" accept="image/*" style="display:none" />
+      </div>
+
+      <!-- 블록 추가 탭 -->
+      <div class="tab-content" id="tab-blocks">
+        <div class="section-label">현재 블록</div>
+        <div class="block-stack" id="block-stack">
+          <!-- BlockManager에서 동적 생성 -->
+        </div>
+        <div class="section-label" style="margin-top:14px">블록 추가</div>
+        <div class="block-list" id="block-list">
+          <!-- blocks.js에서 동적 생성 -->
+        </div>
+      </div>
+
+      <!-- 테마 탭 -->
+      <div class="tab-content" id="tab-theme">
+        <div class="section-label">디자인 테마</div>
+        <div class="theme-list" id="theme-list">
+          <!-- themes.js에서 동적 생성 -->
+        </div>
+      </div>
+    </aside>
+
+    <!-- 캔버스 영역 -->
+    <main class="canvas-area">
+      <div class="canvas-container" id="canvas-container">
+        <canvas id="main-canvas"></canvas>
+      </div>
+      <!-- 줌 컨트롤 -->
+      <div class="zoom-controls">
+        <button class="btn-icon-sm" id="btn-zoom-out">−</button>
+        <button class="btn-icon-sm" id="btn-zoom-fit">맞춤</button>
+        <button class="btn-icon-sm" id="btn-zoom-in">+</button>
+      </div>
+    </main>
+
+    <!-- 우측 패널 -->
+    <aside class="panel-right">
+      <div id="panel-empty" class="panel-empty">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#ccc" stroke-width="1.5"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>
+        <p>요소를 선택하면<br/>속성이 표시됩니다</p>
+      </div>
+
+      <!-- 이미지 플레이스홀더 패널 -->
+      <div id="panel-placeholder" class="panel-props" style="display:none">
+        <div class="prop-section" style="text-align:center;padding:24px 16px">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="1.2" style="margin-bottom:12px">
+            <rect x="3" y="3" width="18" height="18" rx="2"/>
+            <circle cx="8.5" cy="8.5" r="1.5"/>
+            <path d="M21 15l-5-5L5 21"/>
+          </svg>
+          <p style="font-size:13px;color:#6b7280;margin-bottom:16px;line-height:1.5">이미지를 업로드하면<br/>이 영역을 채웁니다</p>
+          <button class="btn-block btn-primary" id="btn-upload-placeholder">이미지 업로드</button>
+          <input type="file" id="placeholder-upload" accept="image/*" style="display:none" />
+        </div>
+      </div>
+
+      <!-- 텍스트 속성 패널 -->
+      <div id="panel-text" class="panel-props" style="display:none">
+        <div class="prop-section">
+          <div class="prop-label">텍스트</div>
+          <textarea id="prop-text-content" rows="3" class="prop-textarea"></textarea>
+        </div>
+        <div class="prop-section">
+          <div class="prop-label">폰트</div>
+          <select id="prop-font-family" class="prop-select">
+            <option value="Noto Sans KR">Noto Sans KR</option>
+            <option value="Noto Serif KR">Noto Serif KR</option>
+            <option value="Gowun Batang">Gowun Batang</option>
+            <option value="Nanum Myeongjo">나눔명조</option>
+            <option value="Nanum Square">나눔스퀘어</option>
+            <option value="Jua">Jua</option>
+          </select>
+        </div>
+        <div class="prop-row">
+          <div class="prop-section half">
+            <div class="prop-label">크기</div>
+            <input type="number" id="prop-font-size" class="prop-input" min="6" max="200" value="24" />
+          </div>
+          <div class="prop-section half">
+            <div class="prop-label">굵기</div>
+            <select id="prop-font-weight" class="prop-select">
+              <option value="300">얇게</option>
+              <option value="400">보통</option>
+              <option value="700">굵게</option>
+              <option value="900">매우 굵게</option>
+            </select>
+          </div>
+        </div>
+        <div class="prop-section">
+          <div class="prop-label">색상</div>
+          <div class="color-row">
+            <input type="color" id="prop-text-color" class="prop-color" value="#111111" />
+            <span id="prop-text-color-hex" class="color-hex">#111111</span>
+          </div>
+        </div>
+        <div class="prop-section">
+          <div class="prop-label">정렬</div>
+          <div class="align-buttons">
+            <button class="align-btn active" data-align="left">≡</button>
+            <button class="align-btn" data-align="center">≡</button>
+            <button class="align-btn" data-align="right">≡</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 이미지 속성 패널 -->
+      <div id="panel-image" class="panel-props" style="display:none">
+        <div class="prop-section">
+          <div class="prop-label">이미지</div>
+          <button class="btn-block" id="btn-replace-image">이미지 교체</button>
+          <input type="file" id="image-replace-upload" accept="image/*" style="display:none" />
+        </div>
+        <div class="prop-section">
+          <div class="prop-label">불투명도</div>
+          <div class="slider-row">
+            <input type="range" id="prop-opacity" min="0" max="100" value="100" class="prop-slider" />
+            <span id="prop-opacity-val">100%</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 도형 속성 패널 -->
+      <div id="panel-shape" class="panel-props" style="display:none">
+        <div class="prop-section">
+          <div class="prop-label">채우기 색상</div>
+          <div class="color-row">
+            <input type="color" id="prop-fill-color" class="prop-color" value="#e2e8f0" />
+            <span id="prop-fill-color-hex" class="color-hex">#e2e8f0</span>
+          </div>
+        </div>
+        <div class="prop-section">
+          <div class="prop-label">테두리 색상</div>
+          <div class="color-row">
+            <input type="color" id="prop-stroke-color" class="prop-color" value="#cccccc" />
+            <span id="prop-stroke-color-hex" class="color-hex">#cccccc</span>
+          </div>
+        </div>
+        <div class="prop-section">
+          <div class="prop-label">테두리 두께</div>
+          <input type="number" id="prop-stroke-width" class="prop-input" min="0" max="20" value="0" />
+        </div>
+        <div class="prop-section">
+          <div class="prop-label">불투명도</div>
+          <div class="slider-row">
+            <input type="range" id="prop-shape-opacity" min="0" max="100" value="100" class="prop-slider" />
+            <span id="prop-shape-opacity-val">100%</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 공통 속성 (선택 요소 있을 때 하단 고정) -->
+      <div id="panel-common" class="panel-common" style="display:none">
+        <div class="prop-section">
+          <div class="prop-label">위치</div>
+          <div class="prop-row">
+            <label class="prop-xy">X <input type="number" id="prop-x" class="prop-input-sm" /></label>
+            <label class="prop-xy">Y <input type="number" id="prop-y" class="prop-input-sm" /></label>
+          </div>
+        </div>
+        <div class="prop-section">
+          <div class="prop-label">크기</div>
+          <div class="prop-row">
+            <label class="prop-xy">W <input type="number" id="prop-w" class="prop-input-sm" /></label>
+            <label class="prop-xy">H <input type="number" id="prop-h" class="prop-input-sm" /></label>
+          </div>
+        </div>
+        <div class="prop-section">
+          <div class="prop-label">레이어</div>
+          <div class="layer-buttons">
+            <button class="btn-sm" id="btn-bring-front">맨 앞으로</button>
+            <button class="btn-sm" id="btn-send-back">맨 뒤로</button>
+          </div>
+        </div>
+        <div class="prop-section">
+          <button class="btn-danger" id="btn-delete-obj">요소 삭제</button>
+        </div>
+      </div>
+    </aside>
+
+  </div>
+
+  <!-- 내보내기 모달 -->
+  <div class="modal-overlay" id="export-modal" style="display:none">
+    <div class="modal">
+      <div class="modal-title">내보내기</div>
+      <div class="prop-section">
+        <div class="prop-label">파일명</div>
+        <input type="text" id="export-filename" class="prop-input" value="상품페이지" />
+      </div>
+      <div class="prop-section">
+        <div class="prop-label">형식</div>
+        <div class="format-buttons">
+          <button class="format-btn active" data-format="png">PNG</button>
+          <button class="format-btn" data-format="jpg">JPG</button>
+        </div>
+      </div>
+      <div class="modal-buttons">
+        <button class="btn-secondary" id="btn-export-cancel">취소</button>
+        <button class="btn-primary" id="btn-export-confirm">저장</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="data/templates.js"></script>
+  <script src="js/themes.js"></script>
+  <script src="js/project-db.js"></script>
+  <script src="js/blocks.js"></script>
+  <script src="js/canvas.js"></script>
+  <script src="js/panel-right.js"></script>
+  <script src="js/panel-left.js"></script>
+  <script src="js/export.js"></script>
+  <script src="js/editor.js"></script>
+</body>
+</html>

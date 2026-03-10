@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>상품 페이지 메이커</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/gallery.css" />
+</head>
+<body>
+
+  <!-- 헤더 -->
+  <header class="header">
+    <div class="logo">PageMaker</div>
+    <div class="header-right">
+      <button class="btn-primary" onclick="startBlank()">처음부터 시작</button>
+    </div>
+  </header>
+
+  <!-- 히어로 (프로젝트 없을 때만 표시) -->
+  <div class="hero" id="hero-section">
+    <h1 class="hero-title">쿠팡 상품 페이지,<br/>지금 바로 만들어보세요</h1>
+    <p class="hero-sub">템플릿을 선택하고 이미지와 문구만 바꾸면 완성됩니다</p>
+  </div>
+
+  <!-- 내 프로젝트 섹션 (저장된 프로젝트 있을 때만 표시) -->
+  <div class="section" id="projects-section" style="display:none">
+    <div class="section-header">
+      <h2 class="section-title">내 프로젝트</h2>
+    </div>
+    <div class="project-grid" id="project-grid"></div>
+  </div>
+
+  <div class="section">
+
+    <!-- 새 프로젝트 -->
+    <div class="section-header">
+      <h2 class="section-title">새 프로젝트</h2>
+      <div class="filter-tabs" id="filter-tabs">
+        <button class="filter-tab active" data-filter="전체">전체</button>
+        <button class="filter-tab" data-filter="공통">공통</button>
+        <button class="filter-tab" data-filter="뷰티/패션">뷰티/패션</button>
+        <button class="filter-tab" data-filter="식품/건강">식품/건강</button>
+      </div>
+    </div>
+
+    <div class="template-grid" id="template-grid">
+      <!-- JS로 렌더링 -->
+    </div>
+
+  </div>
+
+  <script src="data/templates.js"></script>
+  <script src="js/themes.js"></script>
+  <script src="js/project-db.js"></script>
+  <script>
+    // ===== 템플릿 그리드 렌더링 =====
+    function renderTemplates(filter) {
+      const grid = document.getElementById('template-grid');
+      grid.innerHTML = '';
+
+      // 처음부터 시작 카드
+      const blank = document.createElement('div');
+      blank.className = 'blank-card';
+      blank.innerHTML = `
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <rect x="3" y="3" width="18" height="18" rx="2"/>
+          <path d="M12 8v8M8 12h8"/>
+        </svg>
+        <span>처음부터 시작</span>
+      `;
+      blank.addEventListener('click', startBlank);
+      grid.appendChild(blank);
+
+      // 필터링
+      const filtered = filter === '전체'
+        ? window.Templates
+        : window.Templates.filter(t => t.category === filter || t.category.includes(filter.split('/')[0]));
+
+      filtered.forEach(tpl => {
+        const card = document.createElement('div');
+        card.className = 'template-card';
+        card.dataset.id = tpl.id;
+
+        card.innerHTML = `
+          <div class="template-preview"></div>
+          <div class="template-card-body">
+            <div class="template-card-name">${tpl.name}</div>
+            <div class="template-card-desc">${tpl.desc}</div>
+            <span class="template-card-tag">${tpl.category}</span>
+          </div>
+        `;
+
+        // 미리보기 렌더링
+        renderPreview(card.querySelector('.template-preview'), tpl);
+
+        // 카드 클릭 시 바로 에디터로
+        card.addEventListener('click', () => goToEditor(tpl.id));
+
+        grid.appendChild(card);
+      });
+    }
+
+    // ===== 미리보기 렌더링 =====
+    function renderPreview(container, tpl) {
+      const theme = window.Themes.find(t => t.id === tpl.defaultTheme) || window.Themes[0];
+      const c = theme.colors;
+      container.style.background = c.bg;
+
+      // 블록 ID 기반으로 미니 프리뷰 블록 생성
+      const previewBlocks = tpl.blocks; // 전체 블록 표시
+      previewBlocks.forEach(blockId => {
+        container.appendChild(buildMiniBlock(blockId, c));
+      });
+    }
+
+    function buildMiniBlock(blockId, c) {
+      const div = document.createElement('div');
+      div.className = 'preview-block';
+      div.style.borderLeft = `3px solid ${c.accent}55`;
+
+      if (blockId === 'b01-main-banner' || blockId === 'b12-brand-banner') {
+        div.className += ' preview-banner';
+        div.style.background = c.accent;
+        div.innerHTML = `
+          <div class="preview-banner-title" style="background:${c.bg}"></div>
+          <div class="preview-banner-sub" style="background:${c.bg}"></div>
+        `;
+      } else if (blockId === 'b02-img-left') {
+        div.className += ' preview-img-text';
+        div.innerHTML = `
+          <div class="preview-img-box" style="background:${c.accent}22"></div>
+          <div class="preview-text-box">
+            <div class="preview-line title" style="background:${c.text}"></div>
+            <div class="preview-line long" style="background:${c.text}"></div>
+            <div class="preview-line short" style="background:${c.text}"></div>
+          </div>
+        `;
+      } else if (blockId === 'b03-img-right') {
+        div.className += ' preview-img-text';
+        div.innerHTML = `
+          <div class="preview-text-box">
+            <div class="preview-line title" style="background:${c.text}"></div>
+            <div class="preview-line long" style="background:${c.text}"></div>
+            <div class="preview-line short" style="background:${c.text}"></div>
+          </div>
+          <div class="preview-img-box" style="background:${c.accent}22"></div>
+        `;
+      } else if (blockId === 'b05-feature-3col') {
+        div.className += ' preview-cols';
+        div.innerHTML = [0,1,2].map(() => `
+          <div class="preview-col">
+            <div class="preview-dot" style="background:${c.accent}"></div>
+            <div class="preview-col-line" style="background:${c.text}"></div>
+            <div class="preview-col-line" style="background:${c.text}"></div>
+          </div>
+        `).join('');
+      } else if (blockId === 'b04-feature-2col') {
+        div.className += ' preview-cols';
+        div.innerHTML = [0,1].map(() => `
+          <div class="preview-col">
+            <div class="preview-dot" style="background:${c.accent}"></div>
+            <div class="preview-col-line" style="background:${c.text}"></div>
+            <div class="preview-col-line" style="background:${c.text}"></div>
+          </div>
+        `).join('');
+      } else if (blockId === 'b06-full-image' || blockId === 'b08-gallery-2col' || blockId === 'b09-gallery-3col') {
+        div.className += ' preview-full-img';
+        div.style.background = c.accent + '18';
+        div.style.color = c.accent + '88';
+        div.innerHTML = `<span style="font-size:9px;letter-spacing:0.5px">${blockId === 'b08-gallery-2col' ? '▦ 갤러리 2열' : blockId === 'b09-gallery-3col' ? '▦ 갤러리 3열' : '▦ 이미지'}</span>`;
+      } else if (blockId === 'b07-spec-table') {
+        div.className += ' preview-table';
+        div.innerHTML = [0,1,2].map(() => `
+          <div class="preview-table-row">
+            <div class="preview-table-label" style="background:${c.accent}"></div>
+            <div class="preview-table-val" style="background:${c.text}"></div>
+          </div>
+        `).join('');
+      } else if (blockId === 'b10-text-center') {
+        div.className += ' preview-banner';
+        div.style.background = c.bg;
+        div.innerHTML = `
+          <div class="preview-banner-title" style="background:${c.text}"></div>
+          <div class="preview-banner-sub" style="background:${c.text}"></div>
+        `;
+      } else if (blockId === 'b11-caution') {
+        div.className += ' preview-table';
+        div.innerHTML = [0,1].map(() => `
+          <div class="preview-table-row">
+            <div class="preview-table-label" style="background:#E9A80088;border-radius:2px"></div>
+            <div class="preview-table-val" style="background:${c.text}33"></div>
+          </div>
+        `).join('');
+      } else if (blockId === 'b13-how-to-use') {
+        div.className += ' preview-cols';
+        div.innerHTML = [0,1,2].map(() => `
+          <div class="preview-col">
+            <div class="preview-dot" style="background:${c.accent};border-radius:50%"></div>
+            <div class="preview-col-line" style="background:${c.text}"></div>
+            <div class="preview-col-line" style="background:${c.text}"></div>
+          </div>
+        `).join('');
+      } else if (blockId === 'b14-review') {
+        div.className += ' preview-cols';
+        div.innerHTML = [0,1,2].map(() => `
+          <div class="preview-col" style="background:#f8f9fa11;border-radius:3px;padding:2px">
+            <div class="preview-col-line" style="background:${c.accent};width:40px"></div>
+            <div class="preview-col-line" style="background:${c.text}"></div>
+            <div class="preview-col-line short" style="background:${c.text}"></div>
+          </div>
+        `).join('');
+      } else if (blockId === 'b15-cta') {
+        div.className += ' preview-banner';
+        div.style.background = c.bg;
+        div.innerHTML = `
+          <div class="preview-banner-title" style="background:${c.accent};width:36px;height:3px;margin-bottom:5px"></div>
+          <div class="preview-banner-title" style="background:${c.text}"></div>
+          <div class="preview-banner-sub" style="background:${c.text}44"></div>
+        `;
+      } else {
+        div.className += ' preview-banner';
+        div.style.background = c.bg;
+        div.innerHTML = `<div class="preview-banner-title" style="background:${c.text}22"></div>`;
+      }
+
+      return div;
+    }
+
+    // ===== 에디터로 이동 =====
+    function goToEditor(templateId) {
+      const theme = window.Templates.find(t => t.id === templateId)?.defaultTheme || '';
+      window.location.href = `editor.html?template=${templateId}&theme=${theme}`;
+    }
+
+    function startBlank() {
+      window.location.href = 'editor.html?new=1';
+    }
+
+    // ===== 필터 탭 =====
+    document.getElementById('filter-tabs').addEventListener('click', (e) => {
+      const btn = e.target.closest('.filter-tab');
+      if (!btn) return;
+      document.querySelectorAll('.filter-tab').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      renderTemplates(btn.dataset.filter);
+    });
+
+    // ===== 프로젝트 섹션 렌더링 =====
+    function renderProjects(projects) {
+      const section = document.getElementById('projects-section');
+      const grid = document.getElementById('project-grid');
+      const hero = document.getElementById('hero-section');
+      if (!projects.length) {
+        section.style.display = 'none';
+        hero.style.display = '';
+        return;
+      }
+      section.style.display = '';
+      hero.style.display = 'none';
+      grid.innerHTML = '';
+
+      projects.forEach(proj => {
+        const card = document.createElement('div');
+        card.className = 'project-card';
+
+        const savedDate = proj.savedAt
+          ? new Date(proj.savedAt).toLocaleDateString('ko-KR', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })
+          : '';
+
+        card.innerHTML = `
+          <div class="project-thumb" id="pthumb-${proj.id}"></div>
+          <div class="project-card-body">
+            <div class="project-name">${proj.name}</div>
+            <div class="project-date">${savedDate}</div>
+          </div>
+          <button class="project-delete" title="삭제" data-id="${proj.id}">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+          </button>
+        `;
+
+        // 썸네일: 이미지 있으면 표시, 없으면 테마 배경색
+        const thumbEl = card.querySelector(`#pthumb-${proj.id}`);
+        const theme = window.Themes.find(t => t.id === proj.themeId) || window.Themes[0];
+        thumbEl.style.background = theme.colors.bg;
+        if (proj.thumbnail) {
+          const img = document.createElement('img');
+          img.src = proj.thumbnail;
+          img.alt = proj.name;
+          thumbEl.appendChild(img);
+        }
+
+        // 카드 클릭 → 에디터 열기
+        card.addEventListener('click', (e) => {
+          if (e.target.closest('.project-delete')) return;
+          window.location.href = `editor.html?project=${proj.id}`;
+        });
+
+        // 삭제 버튼
+        card.querySelector('.project-delete').addEventListener('click', (e) => {
+          e.stopPropagation();
+          if (!confirm(`"${proj.name}" 프로젝트를 삭제할까요?`)) return;
+          ProjectDB.delete(proj.id).then(() => loadProjects());
+        });
+
+        grid.appendChild(card);
+      });
+    }
+
+    function loadProjects() {
+      ProjectDB.getAll().then(renderProjects).catch(() => {});
+    }
+
+    // ===== 초기 렌더링 =====
+    renderTemplates('전체');
+    loadProjects();
+  </script>
+</body>
+</html>
