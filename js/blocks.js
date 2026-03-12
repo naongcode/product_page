@@ -24,6 +24,7 @@ window.BlockLibrary = [
   { id: 'b13-how-to-use',    name: '사용 방법',      desc: '번호 + 단계별 안내 3단' },
   { id: 'b14-review',        name: '고객 후기',      desc: '별점 + 리뷰 카드 3열' },
   { id: 'b15-cta',           name: '구매 유도 배너', desc: '강조 문구 + 행동 유도' },
+  { id: 'b16-delivery',     name: '배송 안내',      desc: '배송방법/기간/비용/반품 안내' },
 ];
 
 // ===== 블록 생성 함수 =====
@@ -39,43 +40,35 @@ const BlockBuilders = {
     const f = theme?.fonts || { heading: 'Nanum Square', body: 'Noto Sans KR' };
     const title = content?.title || '상품명을 입력하세요';
     const subtitle = content?.subtitle || '핵심 특징을 한 줄로 설명하세요';
-
-    // 제목 줄 수에 따라 높이 동적 계산
-    const titleLines = title.split('\n').length;
-    const titleLineH = 82 * 1.2; // fontSize * lineHeight
-    const titleH = titleLineH * titleLines;
-    const subtitleH = 34 * 1.2;
-    const contentH = titleH + 28 + 3 + 20 + subtitleH; // title + gap + divider + gap + sub
-    const h = Math.max(520, Math.round(contentH + 200)); // 상하 여백 포함
-
-    const titleY = yOffset + Math.round((h - contentH) / 2);
-    const dividerY = titleY + Math.round(titleH) + 28;
-    const subY = dividerY + 3 + 20;
-
-    const bgColor = c.bg;
+    const bgColor = c.hero || c.bg;
     const isLightBg = _isLightColor(bgColor);
-    const titleColor = isLightBg ? c.text : '#ffffff';
-    const subColor = isLightBg ? c.subtext : 'rgba(255,255,255,0.72)';
-    const dividerColor = c.accent;
+    const titleColor = isLightBg ? (_isLightColor(c.text) ? '#111111' : c.text) : '#ffffff';
+    const subColor = isLightBg ? (_isLightColor(c.subtext) ? '#444444' : c.subtext) : 'rgba(255,255,255,0.72)';
+    const dividerColor = isLightBg ? c.accent : (c.accent2 || '#ffffff');
+    const titleLines = title.split('\n').length;
+    const titleH = Math.ceil(titleLines * 90 * 1.2);
+    const dividerY = yOffset + 232 + titleH + 36;
+    const subtitleY = dividerY + 3 + 26;
+    const h = Math.max(680, (subtitleY - yOffset) + Math.ceil(38 * 1.2) + 150);
     return {
       height: h,
       objects: [
-        mkRect(0, yOffset, ARTBOARD_W, h, bgColor),
-        mkText(title, ARTBOARD_W / 2, titleY, {
-          fontSize: 82, fontFamily: f.heading, fontWeight: '900', lineHeight: 1.2,
-          fill: titleColor, textAlign: 'center', originX: 'center', _isHeading: true,
+        mkRect(0, yOffset, ARTBOARD_W, h, bgColor, 'left', '_isHero'),
+        mkText(title, ARTBOARD_W / 2, yOffset + 232, {
+          fontSize: 90, fontFamily: f.heading, fontWeight: '900', lineHeight: 1.2,
+          fill: titleColor, textAlign: 'center', originX: 'center', _isHeading: true, _isHeroText: true, width: 960,
         }),
-        mkRect(ARTBOARD_W / 2 - 30, dividerY, 60, 3, dividerColor, 'center', '_isAccent'),
-        mkText(subtitle, ARTBOARD_W / 2, subY, {
-          fontSize: 34, fontFamily: f.body, fontWeight: '400', lineHeight: 1.2,
-          fill: subColor, textAlign: 'center', originX: 'center',
+        mkRect(ARTBOARD_W / 2 - 30, dividerY, 60, 3, dividerColor, 'center', '_isHeroDivider'),
+        mkText(subtitle, ARTBOARD_W / 2, subtitleY, {
+          fontSize: 38, fontFamily: f.body, fontWeight: '400', lineHeight: 1.2,
+          fill: subColor, textAlign: 'center', originX: 'center', _isHeroText: true, width: 960,
         }),
       ]
     };
   },
 
   'b02-img-left': (yOffset, theme, content) => {
-    const h = 580;
+    const h = 720;
     const c = theme?.colors || { bg: '#ffffff', text: '#111111', subtext: '#6b7280', accent: '#222222' };
     const f = theme?.fonts || { heading: 'Nanum Square', body: 'Noto Sans KR' };
     const imgW = ARTBOARD_W / 2;
@@ -85,23 +78,23 @@ const BlockBuilders = {
     return {
       height: h,
       objects: [
-        mkRect(0, yOffset, ARTBOARD_W, h, c.bg),
+        mkRect(0, yOffset, ARTBOARD_W, h, c.bg, 'left', '_isBg'),
         mkPlaceholder(0, yOffset, imgW, h, '이미지 영역\n더블클릭하여 업로드'),
-        mkRect(colCx - 20, yOffset + 190, 40, 4, c.accent, 'left', '_isAccent'),
-        mkText(title, colCx, yOffset + 208, {
-          fontSize: 46, fontFamily: f.heading, fontWeight: '800', lineHeight: 1.2,
-          fill: c.text, textAlign: 'center', originX: 'center', _isHeading: true,
+        mkRect(colCx - 20, yOffset + 228, 40, 4, c.accent, 'left', '_isAccent'),
+        mkText(title, colCx, yOffset + 248, {
+          fontSize: 52, fontFamily: f.heading, fontWeight: '800', lineHeight: 1.2,
+          fill: c.text, textAlign: 'center', originX: 'center', _isHeading: true, width: 480,
         }),
-        mkText(desc, colCx, yOffset + 274, {
-          fontSize: 22, fontFamily: f.body, fontWeight: '400',
-          fill: c.subtext, lineHeight: 1.7, textAlign: 'center', originX: 'center',
+        mkText(desc, colCx, yOffset + 356, {
+          fontSize: 28, fontFamily: f.body, fontWeight: '400',
+          fill: c.subtext, lineHeight: 1.7, textAlign: 'center', originX: 'center', width: 480,
         }),
       ]
     };
   },
 
   'b03-img-right': (yOffset, theme, content) => {
-    const h = 580;
+    const h = 720;
     const c = theme?.colors || { bg: '#f8f9fa', text: '#111111', subtext: '#6b7280', accent: '#222222' };
     const f = theme?.fonts || { heading: 'Nanum Square', body: 'Noto Sans KR' };
     const imgX = ARTBOARD_W / 2;
@@ -111,23 +104,23 @@ const BlockBuilders = {
     return {
       height: h,
       objects: [
-        mkRect(0, yOffset, ARTBOARD_W, h, c.bg),
+        mkRect(0, yOffset, ARTBOARD_W, h, c.surface || c.bg, 'left', '_isSurface'),
         mkPlaceholder(imgX, yOffset, ARTBOARD_W / 2, h, '이미지 영역\n더블클릭하여 업로드'),
-        mkRect(colCx - 20, yOffset + 190, 40, 4, c.accent, 'left', '_isAccent'),
-        mkText(title, colCx, yOffset + 208, {
-          fontSize: 46, fontFamily: f.heading, fontWeight: '800', lineHeight: 1.2,
-          fill: c.text, textAlign: 'center', originX: 'center', _isHeading: true,
+        mkRect(colCx - 20, yOffset + 228, 40, 4, c.accent, 'left', '_isAccent'),
+        mkText(title, colCx, yOffset + 248, {
+          fontSize: 52, fontFamily: f.heading, fontWeight: '800', lineHeight: 1.2,
+          fill: c.text, textAlign: 'center', originX: 'center', _isHeading: true, width: 480,
         }),
-        mkText(desc, colCx, yOffset + 274, {
-          fontSize: 22, fontFamily: f.body, fontWeight: '400',
-          fill: c.subtext, lineHeight: 1.7, textAlign: 'center', originX: 'center',
+        mkText(desc, colCx, yOffset + 356, {
+          fontSize: 28, fontFamily: f.body, fontWeight: '400',
+          fill: c.subtext, lineHeight: 1.7, textAlign: 'center', originX: 'center', width: 480,
         }),
       ]
     };
   },
 
   'b04-feature-2col': (yOffset, theme, content) => {
-    const h = 430;
+    const h = 560;
     const c = theme?.colors || { bg: '#ffffff', text: '#111111', subtext: '#6b7280', accent: '#222222' };
     const f = theme?.fonts || { heading: 'Nanum Square', body: 'Noto Sans KR' };
     const colW = (CONTENT_W - 40) / 2;
@@ -138,27 +131,28 @@ const BlockBuilders = {
       { title: '특징 02', desc: '특징에 대한 설명을\n두 줄 정도로 작성하세요.' },
     ];
     const items = content?.items || defaults;
+    const txtW = Math.floor(colW * 0.88);
     const txtOpts = (isHead) => ({
-      textAlign: 'center', originX: 'center',
-      ...(isHead ? { fontSize: 36, fontFamily: f.heading, fontWeight: '800', lineHeight: 1.2, fill: c.text, _isHeading: true }
-                 : { fontSize: 18, fontFamily: f.body, fill: c.subtext, lineHeight: 1.7 })
+      textAlign: 'center', originX: 'center', width: txtW,
+      ...(isHead ? { fontSize: 42, fontFamily: f.heading, fontWeight: '800', lineHeight: 1.2, fill: c.text, _isHeading: true }
+                 : { fontSize: 26, fontFamily: f.body, fill: c.subtext, lineHeight: 1.7 })
     });
     return {
       height: h,
       objects: [
-        mkRect(0, yOffset, ARTBOARD_W, h, c.bg),
-        mkCircle(cx1, yOffset + 95, 30, c.accent),
-        mkText(items[0]?.title || defaults[0].title, cx1, yOffset + 147, txtOpts(true)),
-        mkText(items[0]?.desc  || defaults[0].desc,  cx1, yOffset + 201, txtOpts(false)),
-        mkCircle(cx2, yOffset + 95, 30, c.accent),
-        mkText(items[1]?.title || defaults[1].title, cx2, yOffset + 147, txtOpts(true)),
-        mkText(items[1]?.desc  || defaults[1].desc,  cx2, yOffset + 201, txtOpts(false)),
+        mkRect(0, yOffset, ARTBOARD_W, h, c.bg, 'left', '_isBg'),
+        mkCircle(cx1, yOffset + 182, 30, c.accent, '_isAccent'),
+        mkText(items[0]?.title || defaults[0].title, cx1, yOffset + 250, txtOpts(true)),
+        mkText(items[0]?.desc  || defaults[0].desc,  cx1, yOffset + 320, txtOpts(false)),
+        mkCircle(cx2, yOffset + 182, 30, c.accent2 || c.accent, '_isAccent2'),
+        mkText(items[1]?.title || defaults[1].title, cx2, yOffset + 250, txtOpts(true)),
+        mkText(items[1]?.desc  || defaults[1].desc,  cx2, yOffset + 320, txtOpts(false)),
       ]
     };
   },
 
   'b05-feature-3col': (yOffset, theme, content) => {
-    const h = 410;
+    const h = 540;
     const c = theme?.colors || { bg: '#f8f9fa', text: '#111111', subtext: '#6b7280', accent: '#222222' };
     const f = theme?.fonts || { heading: 'Nanum Square', body: 'Noto Sans KR' };
     const colW = (CONTENT_W - 40) / 3;
@@ -173,17 +167,19 @@ const BlockBuilders = {
       { title: '특징 03', desc: '특징 설명을\n여기에 작성하세요.' },
     ];
     const items = content?.items || defaults;
-    const objs = [mkRect(0, yOffset, ARTBOARD_W, h, c.bg)];
+    const circleAccents = [c.accent, c.accent2 || c.accent, c.accent];
+    const circleFlags3 = ['_isAccent', '_isAccent2', '_isAccent'];
+    const objs = [mkRect(0, yOffset, ARTBOARD_W, h, c.surface || c.bg, 'left', '_isSurface')];
     cxs.forEach((cx, i) => {
       objs.push(
-        mkCircle(cx, yOffset + 90, 28, c.accent),
-        mkText(items[i]?.title || defaults[i].title, cx, yOffset + 138, {
-          fontSize: 30, fontFamily: f.heading, fontWeight: '800', lineHeight: 1.2,
-          fill: c.text, textAlign: 'center', originX: 'center', _isHeading: true,
+        mkCircle(cx, yOffset + 180, 28, circleAccents[i], circleFlags3[i]),
+        mkText(items[i]?.title || defaults[i].title, cx, yOffset + 242, {
+          fontSize: 36, fontFamily: f.heading, fontWeight: '800', lineHeight: 1.2,
+          fill: c.text, textAlign: 'center', originX: 'center', _isHeading: true, width: Math.floor(colW * 0.84),
         }),
-        mkText(items[i]?.desc || defaults[i].desc, cx, yOffset + 182, {
-          fontSize: 17, fontFamily: f.body, fill: c.subtext, lineHeight: 1.7,
-          textAlign: 'center', originX: 'center',
+        mkText(items[i]?.desc || defaults[i].desc, cx, yOffset + 304, {
+          fontSize: 25, fontFamily: f.body, fill: c.subtext, lineHeight: 1.7,
+          textAlign: 'center', originX: 'center', width: Math.floor(colW * 0.84),
         })
       );
     });
@@ -191,7 +187,7 @@ const BlockBuilders = {
   },
 
   'b06-full-image': (yOffset, theme) => {
-    const h = 680;
+    const h = 820;
     return {
       height: h,
       objects: [
@@ -212,15 +208,15 @@ const BlockBuilders = {
     ];
     const rows = content?.rows || defaultRows;
     const sectionTitle = content?.title || '상품 정보';
-    const rowH = 62;
-    const headerH = 100;
-    const h = headerH + rows.length * rowH + 60;
+    const rowH = 76;
+    const headerH = 130;
+    const h = headerH + rows.length * rowH + 76;
     const tableY = yOffset + headerH;
     const labelW = 220;
     const objs = [
-      mkRect(0, yOffset, ARTBOARD_W, h, c.bg),
+      mkRect(0, yOffset, ARTBOARD_W, h, c.bg, 'left', '_isBg'),
       mkText(sectionTitle, ARTBOARD_W / 2, yOffset + (headerH - 46) / 2, {
-        fontSize: 38, fontFamily: f.heading, fontWeight: '800', lineHeight: 1.2,
+        fontSize: 44, fontFamily: f.heading, fontWeight: '800', lineHeight: 1.2,
         fill: c.text, textAlign: 'center', originX: 'center', _isHeading: true,
       }),
     ];
@@ -228,13 +224,15 @@ const BlockBuilders = {
       const rowY = tableY + i * rowH;
       const isEven = i % 2 === 0;
       objs.push(
-        mkRect(BLOCK_PADDING, rowY, CONTENT_W, rowH, isEven ? '#f8f9fa' : c.bg),
-        mkRect(BLOCK_PADDING, rowY, labelW, rowH, isEven ? '#f1f3f5' : '#f8f9fa'),
+        mkRect(BLOCK_PADDING, rowY, CONTENT_W, rowH, isEven ? c.surface || '#f8f9fa' : c.bg, 'left', isEven ? '_isSurface' : '_isBg'),
+        mkRect(BLOCK_PADDING, rowY, labelW, rowH, isEven ? c.bg : c.surface || '#f8f9fa', 'left', isEven ? '_isBg' : '_isSurface'),
         mkText(label, BLOCK_PADDING + 24, rowY + rowH / 2, {
-          fontSize: 20, fontFamily: f.body, fontWeight: '700', fill: c.text, originY: 'center',
+          fontSize: 26, fontFamily: f.body, fontWeight: '700', fill: c.text, originY: 'center',
+          width: labelW - 30,
         }),
         mkText(value, BLOCK_PADDING + labelW + 24, rowY + rowH / 2, {
-          fontSize: 20, fontFamily: f.body, fill: c.subtext, originY: 'center',
+          fontSize: 26, fontFamily: f.body, fill: c.subtext, originY: 'center',
+          width: CONTENT_W - labelW - 48,
         })
       );
     });
@@ -242,7 +240,7 @@ const BlockBuilders = {
   },
 
   'b08-gallery-2col': (yOffset, theme) => {
-    const h = 500;
+    const h = 640;
     const gap = 16;
     const imgW = (ARTBOARD_W - gap) / 2;
     return {
@@ -255,7 +253,7 @@ const BlockBuilders = {
   },
 
   'b09-gallery-3col': (yOffset, theme) => {
-    const h = 420;
+    const h = 560;
     const gap = 12;
     const imgW = (ARTBOARD_W - gap * 2) / 3;
     return {
@@ -269,7 +267,7 @@ const BlockBuilders = {
   },
 
   'b10-text-center': (yOffset, theme, content) => {
-    const h = 440;
+    const h = 580;
     const c = theme?.colors || { bg: '#ffffff', text: '#111111', subtext: '#6b7280', accent: '#222222' };
     const f = theme?.fonts || { heading: 'Nanum Square', body: 'Noto Sans KR' };
     const title = content?.title || '섹션 제목';
@@ -277,15 +275,15 @@ const BlockBuilders = {
     return {
       height: h,
       objects: [
-        mkRect(0, yOffset, ARTBOARD_W, h, c.bg),
-        mkText(title, ARTBOARD_W / 2, yOffset + 90, {
-          fontSize: 56, fontFamily: f.heading, fontWeight: '800', lineHeight: 1.2,
-          fill: c.text, textAlign: 'center', originX: 'center', _isHeading: true,
+        mkRect(0, yOffset, ARTBOARD_W, h, c.bg, 'left', '_isBg'),
+        mkText(title, ARTBOARD_W / 2, yOffset + 166, {
+          fontSize: 62, fontFamily: f.heading, fontWeight: '800', lineHeight: 1.2,
+          fill: c.text, textAlign: 'center', originX: 'center', _isHeading: true, width: 880,
         }),
-        mkRect(ARTBOARD_W / 2 - 30, yOffset + 173, 60, 4, c.accent, 'center', '_isAccent'),
-        mkText(body, ARTBOARD_W / 2, yOffset + 197, {
-          fontSize: 22, fontFamily: f.body, fontWeight: '400',
-          fill: c.subtext, textAlign: 'center', originX: 'center', lineHeight: 1.8,
+        mkRect(ARTBOARD_W / 2 - 30, yOffset + 284, 60, 4, c.accent, 'center', '_isAccent'),
+        mkText(body, ARTBOARD_W / 2, yOffset + 314, {
+          fontSize: 28, fontFamily: f.body, fontWeight: '400',
+          fill: c.subtext, textAlign: 'center', originX: 'center', lineHeight: 1.8, width: 880,
         }),
       ]
     };
@@ -295,20 +293,21 @@ const BlockBuilders = {
     const c = theme?.colors || { bg: '#fff9f0', text: '#111111', subtext: '#6b7280', accent: '#E9A800' };
     const f = theme?.fonts || { heading: 'Nanum Square', body: 'Noto Sans KR' };
     const items = content?.items || ['주의사항 1을 입력하세요', '주의사항 2를 입력하세요', '주의사항 3을 입력하세요'];
-    const rowH = 58;
-    // 제목(36px·~43px) + 간격16 → 첫 항목 시작, 항목간격 58px
-    const h = 86 + items.length * rowH + 52;
+    const rowH = 72;
+    const topPad = 70;
+    const itemsStart = topPad + 74; // 74 = 제목 높이(~50) + 간격(24)
+    const h = itemsStart + Math.max(0, items.length - 1) * rowH + 36 + topPad;
     const objs = [
-      mkRect(0, yOffset, ARTBOARD_W, h, c.bg),
-      mkText('⚠ 주의사항', BLOCK_PADDING, yOffset + 28, {
-        fontSize: 36, fontFamily: f.heading, fontWeight: '800', lineHeight: 1.2,
+      mkRect(0, yOffset, ARTBOARD_W, h, c.bg, 'left', '_isBg'),
+      mkText('⚠ 주의사항', BLOCK_PADDING, yOffset + topPad, {
+        fontSize: 42, fontFamily: f.heading, fontWeight: '800', lineHeight: 1.2,
         fill: c.accent, _isHeading: true,
       }),
     ];
     items.forEach((txt, i) => {
       objs.push(
-        mkText('•  ' + txt, BLOCK_PADDING, yOffset + 87 + i * rowH, {
-          fontSize: 20, fontFamily: f.body, fill: c.subtext, lineHeight: 1.4,
+        mkText('•  ' + txt, BLOCK_PADDING, yOffset + itemsStart + i * rowH, {
+          fontSize: 26, fontFamily: f.body, fill: c.subtext, lineHeight: 1.4, width: CONTENT_W,
         })
       );
     });
@@ -316,22 +315,26 @@ const BlockBuilders = {
   },
 
   'b12-brand-banner': (yOffset, theme, content) => {
-    const h = 320;
+    const h = 440;
     const c = theme?.colors || { bg: '#111111', text: '#ffffff', subtext: 'rgba(255,255,255,0.6)', accent: '#ffffff' };
     const f = theme?.fonts || { heading: 'Nanum Square', body: 'Noto Sans KR' };
     const name = content?.name || '브랜드명';
     const slogan = content?.slogan || '브랜드 슬로건을 여기에 입력하세요';
+    const heroBg = c.hero || c.bg;
+    const isLightHero = _isLightColor(heroBg);
+    const nameColor = isLightHero ? (_isLightColor(c.text) ? '#111111' : c.text) : '#ffffff';
+    const sloganColor = isLightHero ? (_isLightColor(c.subtext) ? '#444444' : c.subtext) : 'rgba(255,255,255,0.65)';
     return {
       height: h,
       objects: [
-        mkRect(0, yOffset, ARTBOARD_W, h, c.bg),
-        mkText(name, ARTBOARD_W / 2, yOffset + 94, {
-          fontSize: 66, fontFamily: f.heading, fontWeight: '900', lineHeight: 1.2,
-          fill: c.accent, textAlign: 'center', originX: 'center', _isHeading: true,
+        mkRect(0, yOffset, ARTBOARD_W, h, heroBg, 'left', '_isHero'),
+        mkText(name, ARTBOARD_W / 2, yOffset + 130, {
+          fontSize: 74, fontFamily: f.heading, fontWeight: '900', lineHeight: 1.2,
+          fill: nameColor, textAlign: 'center', originX: 'center', _isHeading: true, _isHeroText: true,
         }),
-        mkText(slogan, ARTBOARD_W / 2, yOffset + 193, {
-          fontSize: 28, fontFamily: f.body, fontWeight: '300', lineHeight: 1.2,
-          fill: c.subtext, textAlign: 'center', originX: 'center',
+        mkText(slogan, ARTBOARD_W / 2, yOffset + 276, {
+          fontSize: 32, fontFamily: f.body, fontWeight: '300', lineHeight: 1.2,
+          fill: sloganColor, textAlign: 'center', originX: 'center', _isHeroText: true,
         }),
       ]
     };
@@ -339,7 +342,7 @@ const BlockBuilders = {
 
   // ─── b13: 사용 방법 (3단계 번호형) ───────────────────────────────────────
   'b13-how-to-use': (yOffset, theme, content) => {
-    const h = 460;
+    const h = 600;
     const c = theme?.colors || { bg: '#f8f9fa', text: '#111111', subtext: '#6b7280', accent: '#222222' };
     const f = theme?.fonts || { heading: 'Nanum Square', body: 'Noto Sans KR' };
     const colW = (CONTENT_W - 40) / 3;
@@ -350,32 +353,35 @@ const BlockBuilders = {
       { step: '03', title: '3단계', desc: '마지막 단계를\n간단하게 설명하세요.' },
     ];
     const items = content?.items || defaults;
-    const circleY = yOffset + 168;
+    const circleY = yOffset + 262;
     const circleR = 38;
-    const inCircleColor = _isLightColor(c.accent) ? c.text : '#ffffff';
+    const stepAccents = [c.accent, c.accent2 || c.accent, c.accent];
+    const stepFlags = ['_isAccent', '_isAccent2', '_isAccent'];
     const objs = [
-      mkRect(0, yOffset, ARTBOARD_W, h, c.bg),
-      mkText('사용 방법', ARTBOARD_W / 2, yOffset + 44, {
-        fontSize: 38, fontFamily: f.heading, fontWeight: '800',
+      mkRect(0, yOffset, ARTBOARD_W, h, c.surface || c.bg, 'left', '_isSurface'),
+      mkText('사용 방법', ARTBOARD_W / 2, yOffset + 100, {
+        fontSize: 44, fontFamily: f.heading, fontWeight: '800',
         fill: c.text, textAlign: 'center', originX: 'center', _isHeading: true,
       }),
     ];
     xs.forEach((x, i) => {
       const item = items[i] || defaults[i];
       const cx = x + colW / 2;
+      const stepFill = stepAccents[i];
+      const inCircleColor = _isLightColor(stepFill) ? c.text : '#ffffff';
       objs.push(
-        mkCircle(cx, circleY, circleR, c.accent),
+        mkCircle(cx, circleY, circleR, stepFill, stepFlags[i]),
         mkText(item.step, cx, circleY, {
-          fontSize: 26, fontFamily: f.heading, fontWeight: '800',
+          fontSize: 30, fontFamily: f.heading, fontWeight: '800',
           fill: inCircleColor, textAlign: 'center', originX: 'center', originY: 'center',
         }),
-        mkText(item.title, cx, yOffset + 232, {
-          fontSize: 28, fontFamily: f.heading, fontWeight: '800', lineHeight: 1.2,
-          fill: c.text, textAlign: 'center', originX: 'center', _isHeading: true,
+        mkText(item.title, cx, yOffset + 344, {
+          fontSize: 34, fontFamily: f.heading, fontWeight: '800', lineHeight: 1.2,
+          fill: c.text, textAlign: 'center', originX: 'center', _isHeading: true, width: Math.floor(colW * 0.84),
         }),
-        mkText(item.desc, cx, yOffset + 280, {
-          fontSize: 18, fontFamily: f.body, fill: c.subtext, lineHeight: 1.7,
-          textAlign: 'center', originX: 'center',
+        mkText(item.desc, cx, yOffset + 412, {
+          fontSize: 26, fontFamily: f.body, fill: c.subtext, lineHeight: 1.7,
+          textAlign: 'center', originX: 'center', width: Math.floor(colW * 0.84),
         })
       );
     });
@@ -384,13 +390,13 @@ const BlockBuilders = {
 
   // ─── b14: 고객 후기 (3열 카드) ─────────────────────────────────────────
   'b14-review': (yOffset, theme, content) => {
-    const h = 430;
+    const h = 580;
     const c = theme?.colors || { bg: '#ffffff', text: '#111111', subtext: '#6b7280', accent: '#222222' };
     const f = theme?.fonts || { heading: 'Nanum Square', body: 'Noto Sans KR' };
     const gap = 20;
     const cardW = (CONTENT_W - gap * 2) / 3;
-    const cardH = 272;
-    const cardTop = yOffset + 110;
+    const cardH = 360;
+    const cardTop = yOffset + 159;
     const xs = [BLOCK_PADDING, BLOCK_PADDING + cardW + gap, BLOCK_PADDING + (cardW + gap) * 2];
     const defaults = [
       { stars: '★★★★★', text: '정말 만족스러운 제품이에요.\n품질도 좋고 배송도 빨랐습니다.', name: '구매자 A' },
@@ -399,24 +405,72 @@ const BlockBuilders = {
     ];
     const items = content?.items || defaults;
     const objs = [
-      mkRect(0, yOffset, ARTBOARD_W, h, c.bg),
-      mkText('고객 후기', ARTBOARD_W / 2, yOffset + 36, {
-        fontSize: 38, fontFamily: f.heading, fontWeight: '800',
+      mkRect(0, yOffset, ARTBOARD_W, h, c.bg, 'left', '_isBg'),
+      mkText('고객 후기', ARTBOARD_W / 2, yOffset + 61, {
+        fontSize: 44, fontFamily: f.heading, fontWeight: '800',
         fill: c.text, textAlign: 'center', originX: 'center', _isHeading: true,
       }),
     ];
     xs.forEach((x, i) => {
       const item = items[i] || defaults[i];
       objs.push(
-        mkRect(x, cardTop, cardW, cardH, '#f8f9fa'),
-        mkText(item.stars, x + 22, cardTop + 24, {
-          fontSize: 20, fontFamily: f.body, fill: c.accent,
+        mkRect(x, cardTop, cardW, cardH, c.surface || '#f8f9fa', 'left', '_isSurface'),
+        mkText(item.stars, x + 22, cardTop + 30, {
+          fontSize: 26, fontFamily: f.body, fill: c.accent,
         }),
-        mkText(item.text, x + 22, cardTop + 62, {
-          fontSize: 17, fontFamily: f.body, fill: c.subtext, lineHeight: 1.75,
+        mkText(item.text, x + 22, cardTop + 86, {
+          fontSize: 25, fontFamily: f.body, fill: c.subtext, lineHeight: 1.75, width: cardW - 44,
         }),
-        mkText('— ' + item.name, x + 22, cardTop + cardH - 46, {
-          fontSize: 15, fontFamily: f.body, fontWeight: '700', fill: c.text,
+        mkText('— ' + item.name, x + 22, cardTop + cardH - 52, {
+          fontSize: 25, fontFamily: f.body, fontWeight: '700', fill: c.text, width: cardW - 44,
+        })
+      );
+    });
+    return { height: h, objects: objs };
+  },
+
+  // ─── b16: 배송 안내 ────────────────────────────────────────────────────
+  'b16-delivery': (yOffset, theme, content) => {
+    const c = theme?.colors || { bg: '#ffffff', text: '#111111', subtext: '#6b7280', accent: '#222222' };
+    const f = theme?.fonts || { heading: 'Nanum Square', body: 'Noto Sans KR' };
+    const sectionTitle = content?.title || '배송 안내';
+    const defaultRows = [
+      ['배송방법', '택배 (CJ대한통운)'],
+      ['배송비', '무료배송 (50,000원 미만 주문 시 3,000원)'],
+      ['배송기간', '결제 완료 후 1~3 영업일 이내 출고'],
+      ['도서·산간', '추가 배송비 발생 (3,000~6,000원)'],
+      ['반품 주소', '주소를 입력하세요'],
+      ['반품 배송비', '최초 배송비 무료 시 반품 편도 3,000원'],
+      ['교환 배송비', '왕복 6,000원'],
+    ];
+    const rows = content?.rows || defaultRows;
+    const rowH = 76;
+    const headerH = 130;
+    const accentBarH = 4;
+    const h = headerH + rows.length * rowH + 76;
+    const tableY = yOffset + headerH;
+    const labelW = 240;
+    const objs = [
+      mkRect(0, yOffset, ARTBOARD_W, h, c.bg, 'left', '_isBg'),
+      mkText(sectionTitle, ARTBOARD_W / 2, yOffset + (headerH - 46) / 2, {
+        fontSize: 44, fontFamily: f.heading, fontWeight: '800', lineHeight: 1.2,
+        fill: c.text, textAlign: 'center', originX: 'center', _isHeading: true,
+      }),
+      mkRect(ARTBOARD_W / 2 - 24, yOffset + (headerH - 46) / 2 + 52, 48, accentBarH, c.accent, 'left', '_isAccent'),
+    ];
+    rows.forEach(([label, value], i) => {
+      const rowY = tableY + i * rowH;
+      const isEven = i % 2 === 0;
+      objs.push(
+        mkRect(BLOCK_PADDING, rowY, CONTENT_W, rowH, isEven ? c.surface || '#f8f9fa' : c.bg, 'left', isEven ? '_isSurface' : '_isBg'),
+        mkRect(BLOCK_PADDING, rowY, labelW, rowH, c.surface || '#f0f4f8', 'left', '_isSurface'),
+        mkText(label, BLOCK_PADDING + 24, rowY + rowH / 2, {
+          fontSize: 26, fontFamily: f.body, fontWeight: '700', fill: c.text, originY: 'center',
+          width: labelW - 30,
+        }),
+        mkText(value, BLOCK_PADDING + labelW + 24, rowY + rowH / 2, {
+          fontSize: 26, fontFamily: f.body, fill: c.subtext, originY: 'center',
+          width: CONTENT_W - labelW - 48,
         })
       );
     });
@@ -425,27 +479,28 @@ const BlockBuilders = {
 
   // ─── b15: 구매 유도 배너 (CTA) ─────────────────────────────────────────
   'b15-cta': (yOffset, theme, content) => {
-    const h = 360;
+    const h = 480;
     const c = theme?.colors || { bg: '#111111', text: '#ffffff', subtext: '#aaaaaa', accent: '#ffffff' };
     const f = theme?.fonts || { heading: 'Nanum Square', body: 'Noto Sans KR' };
     const headline = content?.headline || '지금 바로 경험해보세요';
     const sub = content?.sub || '첫 구매 고객을 위한 특별 혜택이 준비되어 있습니다';
-    const isLight = _isLightColor(c.bg);
-    const headColor = isLight ? c.text : '#ffffff';
-    const subColor = isLight ? c.subtext : 'rgba(255,255,255,0.65)';
-    const lineColor = c.accent;
+    const heroBg = c.hero || c.bg;
+    const isLight = _isLightColor(heroBg);
+    const headColor = isLight ? (_isLightColor(c.text) ? '#111111' : c.text) : '#ffffff';
+    const subColor = isLight ? (_isLightColor(c.subtext) ? '#444444' : c.subtext) : 'rgba(255,255,255,0.65)';
+    const lineColor = isLight ? c.accent : (c.accent2 || '#ffffff');
     return {
       height: h,
       objects: [
-        mkRect(0, yOffset, ARTBOARD_W, h, c.bg),
-        mkRect(ARTBOARD_W / 2 - 30, yOffset + 68, 60, 4, lineColor, 'center', '_isAccent'),
-        mkText(headline, ARTBOARD_W / 2, yOffset + 96, {
-          fontSize: 58, fontFamily: f.heading, fontWeight: '900', lineHeight: 1.2,
-          fill: headColor, textAlign: 'center', originX: 'center', _isHeading: true,
+        mkRect(0, yOffset, ARTBOARD_W, h, heroBg, 'left', '_isHero'),
+        mkRect(ARTBOARD_W / 2 - 30, yOffset + 92, 60, 4, lineColor, 'center', '_isHeroDivider'),
+        mkText(headline, ARTBOARD_W / 2, yOffset + 130, {
+          fontSize: 64, fontFamily: f.heading, fontWeight: '900', lineHeight: 1.2,
+          fill: headColor, textAlign: 'center', originX: 'center', _isHeading: true, _isHeroText: true, width: 960,
         }),
-        mkText(sub, ARTBOARD_W / 2, yOffset + 232, {
-          fontSize: 26, fontFamily: f.body, fontWeight: '400', lineHeight: 1.4,
-          fill: subColor, textAlign: 'center', originX: 'center',
+        mkText(sub, ARTBOARD_W / 2, yOffset + 318, {
+          fontSize: 30, fontFamily: f.body, fontWeight: '400', lineHeight: 1.4,
+          fill: subColor, textAlign: 'center', originX: 'center', _isHeroText: true, width: 960,
         }),
       ]
     };
@@ -454,6 +509,7 @@ const BlockBuilders = {
 
 // ===== 헬퍼 함수 =====
 function _isLightColor(hex) {
+  if (!hex || typeof hex !== 'string') return true;
   const c = hex.replace('#', '');
   if (c.length < 6) return true;
   const r = parseInt(c.slice(0, 2), 16);
@@ -471,7 +527,8 @@ function mkRect(left, top, width, height, fill, originX = 'left', flag = null) {
 }
 
 function mkText(text, left, top, opts = {}) {
-  return new fabric.IText(text, {
+  const useTextbox = !!opts.width;
+  const obj = new (useTextbox ? fabric.Textbox : fabric.IText)(text, {
     left, top,
     fontFamily: opts.fontFamily || 'Noto Sans KR',
     fontSize: opts.fontSize || 18,
@@ -482,11 +539,16 @@ function mkText(text, left, top, opts = {}) {
     originY: opts.originY || 'top',
     lineHeight: opts.lineHeight || 1.4,
     _isHeading: opts._isHeading || false,
+    ...(useTextbox ? { width: opts.width } : {}),
   });
+  if (opts._isHeroText) obj._isHeroText = true;
+  return obj;
 }
 
-function mkCircle(left, top, radius, fill) {
-  return new fabric.Circle({ left, top, radius, fill, originX: 'center', originY: 'center', selectable: true });
+function mkCircle(left, top, radius, fill, flag = null) {
+  const opts = { left, top, radius, fill, originX: 'center', originY: 'center', selectable: true };
+  if (flag) opts[flag] = true;
+  return new fabric.Circle(opts);
 }
 
 function mkPlaceholder(left, top, width, height, label) {
@@ -520,8 +582,8 @@ window.BlockManager = {
   // 현재 쌓인 블록 목록 [{id, yOffset, height}]
   blocks: [],
 
-  // 블록 추가
-  addBlock(blockId, content = null) {
+  // 블록 추가 (extraHeight: 초기 여백, 기본 0)
+  addBlock(blockId, content = null, extraHeight = 0) {
     const canvas = CanvasManager.getCanvas();
     const theme = ThemeManager.getCurrent();
     const builder = BlockBuilders[blockId];
@@ -535,10 +597,22 @@ window.BlockManager = {
     flatObjs.forEach(obj => {
       obj._blockId = blockId;
       obj._blockKey = blockKey;
+      // extraHeight가 있으면 콘텐츠를 아래로 half 이동 (위아래 반반)
+      if (extraHeight > 0) obj.set('top', (obj.top || 0) + extraHeight / 2);
       canvas.add(obj);
     });
 
-    this.blocks.push({ id: blockId, key: blockKey, yOffset, height: result.height });
+    // 하단 여백용 투명 spacer rect
+    const spacer = new fabric.Rect({
+      left: 0, top: yOffset + result.height,
+      width: 1200, height: extraHeight,
+      fill: 'transparent', stroke: null, strokeWidth: 0,
+      selectable: false, evented: false, hoverCursor: 'default',
+      _blockKey: blockKey, _isSpacer: true, excludeFromExport: true,
+    });
+    canvas.add(spacer);
+
+    this.blocks.push({ id: blockId, key: blockKey, yOffset, height: result.height, extraHeight });
     CanvasManager.setArtboardHeight(this.getTotalHeight());
     canvas.renderAll();
     CanvasManager.saveHistory();
@@ -551,9 +625,10 @@ window.BlockManager = {
     const block = this.blocks[idx];
     if (!block) return;
 
-    const deletedHeight = block.height;
+    // spacer 포함한 실제 점유 높이
+    const deletedHeight = block.height + (block.extraHeight || 0);
 
-    // 고유 블록 키로 오브젝트 제거
+    // 고유 블록 키로 오브젝트 제거 (spacer 포함)
     canvas.getObjects().filter(o => o._blockKey === block.key).forEach(o => canvas.remove(o));
 
     this.blocks.splice(idx, 1);
@@ -585,50 +660,155 @@ window.BlockManager = {
     this._rerenderAll();
   },
 
-  // Y 오프셋 재계산
+  // Y 오프셋 재계산 (extraHeight 포함)
   _rebuildYOffsets() {
     let y = 0;
     this.blocks.forEach(b => {
       b.yOffset = y;
-      y += b.height;
+      y += b.height + (b.extraHeight || 0);
     });
     CanvasManager.setArtboardHeight(this.getTotalHeight());
   },
 
-  // 전체 재렌더링 (순서 변경 후)
+  // 전체 재렌더링 (순서 변경 후, extraHeight 보존)
   _rerenderAll() {
-    const canvas = CanvasManager.getCanvas();
-    const theme = ThemeManager.getCurrent();
-
-    // 아트보드 제외 전체 삭제 후 재생성
     const artboard = CanvasManager.getArtboard();
+    const canvas = CanvasManager.getCanvas();
     canvas.getObjects().filter(o => o !== artboard).forEach(o => canvas.remove(o));
 
     const savedBlocks = [...this.blocks];
     this.blocks = [];
 
     savedBlocks.forEach(b => {
-      const builder = BlockBuilders[b.id];
-      if (!builder) return;
-      const yOffset = this.getTotalHeight();
-      const blockKey = b.key || (b.id + '_' + Date.now() + '_' + Math.random().toString(36).slice(2));
-      const result = builder(yOffset, theme);
-      const flatObjs = result.objects.flat();
-      flatObjs.forEach(obj => {
-        obj._blockId = b.id;
-        obj._blockKey = blockKey;
-        canvas.add(obj);
-      });
-      this.blocks.push({ id: b.id, key: blockKey, yOffset, height: result.height });
+      this.addBlock(b.id, null, b.extraHeight || 0);
     });
 
     canvas.renderAll();
     CanvasManager.saveHistory();
   },
 
-  // 전체 블록 높이 합산
+  // 전체 블록 높이 합산 (extraHeight 포함)
   getTotalHeight() {
-    return this.blocks.reduce((sum, b) => sum + b.height, 0);
+    return this.blocks.reduce((sum, b) => sum + b.height + (b.extraHeight || 0), 0);
+  },
+
+  // 개별 블록 여백 조절 (위아래 반반)
+  resizeBlock(blockKey, newExtraHeight) {
+    const idx = this.blocks.findIndex(b => b.key === blockKey);
+    if (idx === -1) return;
+    const block = this.blocks[idx];
+    const clamped = Math.max(0, Math.round(newExtraHeight));
+    const delta = clamped - (block.extraHeight || 0);
+    if (delta === 0) return;
+
+    block.extraHeight = clamped;
+
+    const canvas = CanvasManager.getCanvas();
+    canvas.getObjects().forEach(obj => {
+      if (obj._blockKey !== blockKey) return;
+      if (obj._isSpacer) {
+        obj.set('height', clamped);
+      } else if (obj._isPlaceholder) {
+        // 이미지 플레이스홀더: 블록 전체를 채우도록 높이 증가 (top은 유지)
+        obj.set('height', (obj.height || 0) + delta);
+      } else if (obj.type === 'image' && obj.clipPath) {
+        // 업로드된 이미지: 클립 프레임 높이 확장 (이미지 위치 유지)
+        obj.clipPath.height = (obj.clipPath.height || 0) + delta;
+        obj.clipPath.setCoords();
+      } else {
+        // 일반 콘텐츠 (텍스트, 도형, 라벨 등): 위아래 반반 이동
+        obj.set('top', (obj.top || 0) + delta / 2);
+      }
+    });
+
+    // 이후 블록 오브젝트는 전체 delta 이동
+    const laterKeys = new Set(this.blocks.slice(idx + 1).map(b => b.key));
+    canvas.getObjects().forEach(obj => {
+      if (!laterKeys.has(obj._blockKey)) return;
+      obj.set('top', (obj.top || 0) + delta);
+      if (obj.type === 'image' && obj.clipPath) {
+        obj.clipPath.top = (obj.clipPath.top || 0) + delta;
+        obj.clipPath.setCoords();
+      }
+    });
+
+    this._rebuildYOffsets();
+    canvas.renderAll();
+    CanvasManager.saveHistory();
+    if (window.PanelLeft?.refreshBlockStack) window.PanelLeft.refreshBlockStack();
+  },
+
+  // 일괄 여백 조절 (모든 블록에 delta 추가, 위아래 반반)
+  resizeAll(delta) {
+    if (!this.blocks.length) return;
+    const canvas = CanvasManager.getCanvas();
+
+    // 실제 적용 delta 계산 (clamp 고려)
+    const actualDeltas = this.blocks.map(b => {
+      const newExtra = Math.max(0, (b.extraHeight || 0) + delta);
+      return newExtra - (b.extraHeight || 0);
+    });
+
+    // extraHeight 업데이트 + spacer 갱신
+    this.blocks.forEach((block, i) => {
+      block.extraHeight = Math.max(0, (block.extraHeight || 0) + delta);
+      canvas.getObjects().forEach(obj => {
+        if (obj._blockKey === block.key && obj._isSpacer) obj.set('height', block.extraHeight);
+      });
+    });
+
+    // 블록별 위치 재계산 + 콘텐츠 센터링
+    let y = 0;
+    this.blocks.forEach((block, idx) => {
+      const oldY = block.yOffset;
+      block.yOffset = y;
+      const posShift = y - oldY;          // 앞 블록들이 커진 만큼 이동
+      const centerShift = actualDeltas[idx] / 2; // 자기 블록 내 위아래 반반
+
+      canvas.getObjects().forEach(obj => {
+        if (obj._blockKey !== block.key) return;
+        if (obj._isSpacer) return; // spacer는 height만 이미 처리
+        if (obj._isPlaceholder) {
+          // 이미지 플레이스홀더: 앞 블록 이동분만 적용하고 높이 증가
+          obj.set('top', (obj.top || 0) + posShift);
+          obj.set('height', (obj.height || 0) + actualDeltas[idx]);
+        } else if (obj.type === 'image' && obj.clipPath) {
+          // 업로드된 이미지: 클립 프레임 이동 + 높이 확장
+          obj.set('top', (obj.top || 0) + posShift);
+          obj.clipPath.top = (obj.clipPath.top || 0) + posShift;
+          obj.clipPath.height = (obj.clipPath.height || 0) + actualDeltas[idx];
+          obj.clipPath.setCoords();
+        } else {
+          obj.set('top', (obj.top || 0) + posShift + centerShift);
+        }
+      });
+
+      y += block.height + block.extraHeight;
+    });
+
+    CanvasManager.setArtboardHeight(this.getTotalHeight());
+    canvas.renderAll();
+    CanvasManager.saveHistory();
+    if (window.PanelLeft?.refreshBlockStack) window.PanelLeft.refreshBlockStack();
+  },
+
+  // 블록 복제 (idx 바로 뒤에 동일 블록 삽입)
+  duplicateBlock(idx) {
+    const block = this.blocks[idx];
+    if (!block) return;
+
+    const artboard = CanvasManager.getArtboard();
+    const canvas = CanvasManager.getCanvas();
+    canvas.getObjects().filter(o => o !== artboard).forEach(o => canvas.remove(o));
+
+    const savedBlocks = this.blocks.map(b => ({ id: b.id, extraHeight: b.extraHeight || 0 }));
+    savedBlocks.splice(idx + 1, 0, { id: block.id, extraHeight: block.extraHeight || 0 });
+
+    this.blocks = [];
+    savedBlocks.forEach(b => this.addBlock(b.id, null, b.extraHeight));
+
+    canvas.renderAll();
+    CanvasManager.saveHistory();
   },
 
   // 블록 초기화 (템플릿 로드 시)
@@ -645,8 +825,6 @@ window.BlockManager = {
     // 블록 빌드 전에 테마를 먼저 설정해야 각 블록이 올바른 색상으로 렌더됨
     if (theme) ThemeManager.apply(theme);
     blockIds.forEach(id => this.addBlock(id, contentMap[id] || null));
-    // 텍스트/강조 오브젝트 색상 재적용
-    if (theme) ThemeManager.apply(theme);
     if (window.PanelLeft?.refreshBlockStack) window.PanelLeft.refreshBlockStack();
   },
 };

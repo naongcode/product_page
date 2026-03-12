@@ -22,8 +22,6 @@ let isUndoRedo = false;
 
 // ===== 초기화 =====
 function initCanvas() {
-  const container = document.getElementById('canvas-container');
-
   // 화면 크기에서 패널 너비 제외한 캔버스 영역 계산
   const panelW = 220;
   const toolbarH = 52;
@@ -298,7 +296,7 @@ function bindKeyboardShortcuts() {
 
 // ===== 히스토리 =====
 function saveHistory() {
-  const json = JSON.stringify(canvas.toJSON(['name', '_blockId', '_blockKey', '_isPlaceholder', '_isPlaceholderLabel', 'excludeFromExport']));
+  const json = JSON.stringify(canvas.toJSON(['name', '_blockId', '_blockKey', '_isPlaceholder', '_isPlaceholderLabel', '_isSpacer', '_isAccent', 'excludeFromExport']));
   // 현재 위치 이후 히스토리 제거
   history = history.slice(0, historyIndex + 1);
   history.push(json);

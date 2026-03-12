@@ -34,12 +34,18 @@ function bindElementButtons() {
   function getDropY() {
     const zoom = canvas.getZoom();
     const vt = canvas.viewportTransform;
-    // 뷰포트 상단에서 아트보드 좌표로 환산 후 살짝 아래
     const canvasEl = canvas.getElement();
     const viewH = canvasEl.height;
     const topInArtboard = (-vt[5]) / zoom;
     const visibleH = viewH / zoom;
-    return topInArtboard + visibleH * 0.25; // 보이는 영역 25% 지점
+    return topInArtboard + visibleH * 0.25;
+  }
+
+  // 아트보드 왼쪽에 배치: 오브젝트 너비 고려해 겹치지 않도록
+  function getDropX(objWidth) {
+    const zoom = canvas.getZoom();
+    // 아트보드 left=0 기준, 화면상 60px 왼쪽에 오른쪽 끝이 오도록
+    return -60 / zoom - objWidth;
   }
 
   // 이미지 업로드
@@ -55,7 +61,7 @@ function bindElementButtons() {
         const maxW = artW * 0.5;
         if (img.width > maxW) img.scaleToWidth(maxW);
         img.set({
-          left: -350, // 아트보드 왼쪽 빈 공간
+          left: getDropX(img.getScaledWidth()),
           top: Math.max(0, getDropY()),
         });
         canvas.add(img);
@@ -71,7 +77,7 @@ function bindElementButtons() {
   // 텍스트 추가
   document.getElementById('btn-add-text').addEventListener('click', () => {
     const text = new fabric.IText('텍스트를 입력하세요', {
-      left: -350,
+      left: getDropX(400),
       top: Math.max(0, getDropY()),
       fontFamily: 'Noto Sans KR',
       fontSize: 32,
@@ -88,7 +94,7 @@ function bindElementButtons() {
   // 사각형
   document.getElementById('btn-add-rect').addEventListener('click', () => {
     const rect = new fabric.Rect({
-      left: -350,
+      left: getDropX(300),
       top: Math.max(0, getDropY()),
       width: 300,
       height: 160,
@@ -105,7 +111,7 @@ function bindElementButtons() {
   // 원
   document.getElementById('btn-add-circle').addEventListener('click', () => {
     const circle = new fabric.Circle({
-      left: -350,
+      left: getDropX(160),
       top: Math.max(0, getDropY()),
       radius: 80,
       fill: '#e2e8f0',
@@ -121,7 +127,9 @@ function bindElementButtons() {
   // 선
   document.getElementById('btn-add-line').addEventListener('click', () => {
     const y = Math.max(0, getDropY());
-    const line = new fabric.Line([-350, y, 50, y], {
+    const x1 = getDropX(400);
+    const x2 = x1 + 400;
+    const line = new fabric.Line([x1, y, x2, y], {
       stroke: '#94a3b8',
       strokeWidth: 2,
     });
@@ -201,6 +209,7 @@ function refreshBlockStack() {
       <div class="block-stack-btns">
         <button class="block-stack-btn" title="위로" data-action="up" data-idx="${idx}">↑</button>
         <button class="block-stack-btn" title="아래로" data-action="down" data-idx="${idx}">↓</button>
+        <button class="block-stack-btn" title="복제" data-action="dup" data-idx="${idx}">⧉</button>
         <button class="block-stack-btn danger" title="삭제" data-action="del" data-idx="${idx}">✕</button>
       </div>
     `;
@@ -212,6 +221,7 @@ function refreshBlockStack() {
         const i = parseInt(btn.dataset.idx);
         if (action === 'up') window.BlockManager.moveBlock(i, -1);
         else if (action === 'down') window.BlockManager.moveBlock(i, 1);
+        else if (action === 'dup') window.BlockManager.duplicateBlock(i);
         else if (action === 'del') window.BlockManager.removeBlock(i);
         refreshBlockStack();
       });

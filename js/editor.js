@@ -118,17 +118,26 @@ function saveProject() {
   if (!currentProjectId) return;
   const canvas = CanvasManager.getCanvas();
 
-  // 업로드된 이미지 중 첫 번째를 썸네일로 사용
+  // 사용자가 업로드한 이미지가 있으면 썸네일로 사용, 없으면 null (테마 배경색)
   let thumbnail = null;
   const imgObjs = canvas.getObjects().filter(o => o.type === 'image' && !o._isPlaceholder);
   if (imgObjs.length > 0) {
-    try { thumbnail = imgObjs[0].toDataURL({ format: 'jpeg', quality: 0.7 }); } catch(e) {}
+    try {
+      const el = imgObjs[0].getElement();
+      const TW = 320, scale = Math.min(1, TW / (el.naturalWidth || TW));
+      const tw = Math.max(1, Math.round((el.naturalWidth || TW) * scale));
+      const th = Math.max(1, Math.round((el.naturalHeight || TW) * scale));
+      const tmp = document.createElement('canvas');
+      tmp.width = tw; tmp.height = th;
+      tmp.getContext('2d').drawImage(el, 0, 0, tw, th);
+      thumbnail = tmp.toDataURL('image/jpeg', 0.8);
+    } catch(e) {}
   }
 
   const data = {
     id: currentProjectId,
     name: document.getElementById('project-name').textContent.trim() || '새 프로젝트',
-    canvas: canvas.toJSON(['name', '_blockId', '_blockKey', '_isHeading', '_isAccent', '_isPlaceholder', '_isPlaceholderLabel', 'excludeFromExport']),
+    canvas: canvas.toJSON(['name', '_blockId', '_blockKey', '_isHeading', '_isAccent', '_isPlaceholder', '_isPlaceholderLabel', '_isSpacer', 'excludeFromExport']),
     blocks: BlockManager.blocks,
     themeId: ThemeManager.getCurrent()?.id || '',
     artboardHeight: CanvasManager.getArtboardHeight(),
@@ -160,10 +169,6 @@ function setSaveStatus(state) {
     _saveStatusTimer = setTimeout(() => { el.textContent = ''; el.className = 'save-status'; }, 3000);
   }
 }
-
-// 하위 호환
-function saveToLocalStorage() { saveProject(); }
-function saveToStorage() { saveProject(); }
 
 // ===== 프로젝트 불러오기 =====
 let _isLoadingProject = false;

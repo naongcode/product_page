@@ -362,6 +362,30 @@ body {
 
 .panel-props { padding: 12px; }
 
+.block-height-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.bulk-height-section {
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+  width: 100%;
+  padding-left: 12px;
+  padding-right: 12px;
+  text-align: left;
+}
+.bulk-height-section .prop-label {
+  margin-bottom: 8px;
+  color: var(--text-sub);
+}
+.bulk-height-section .block-height-row {
+  justify-content: center;
+  gap: 8px;
+}
+
 .panel-common {
   padding: 12px;
   border-top: 1px solid var(--border);
@@ -612,6 +636,60 @@ body {
 .theme-item-info { flex: 1; min-width: 0; }
 .theme-item-name { font-size: 12px; font-weight: 600; color: var(--text); }
 .theme-item-desc { font-size: 10px; color: var(--text-sub); margin-top: 1px; }
+
+/* ===== 아트보드 정렬 그리드 ===== */
+.align-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 4px;
+}
+
+.align-grid-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 7px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  border-radius: 5px;
+  cursor: pointer;
+  color: var(--text-sub);
+  transition: all 0.15s;
+}
+.align-grid-btn:hover { background: #eef0ff; border-color: var(--primary); color: var(--primary); }
+
+/* ===== 잠금 버튼 ===== */
+.btn-lock {
+  width: 100%;
+  padding: 8px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  color: var(--text);
+  transition: background 0.15s;
+}
+.btn-lock:hover { background: #e8eaf0; }
+.btn-lock.locked {
+  background: #fef3c7;
+  border-color: #f59e0b;
+  color: #92400e;
+}
+.btn-lock.locked:hover { background: #fde68a; }
+
+/* ===== 슬라이더 값 표시 ===== */
+.slider-val {
+  font-size: 12px;
+  color: var(--text-sub);
+  min-width: 32px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
 
 /* ===== 스크롤바 ===== */
 ::-webkit-scrollbar { width: 5px; }

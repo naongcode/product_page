@@ -85,6 +85,14 @@
           </button>
         </div>
         <input type="file" id="image-upload" accept="image/*" style="display:none" />
+
+        <!-- 텍스트 내용 (텍스트 선택 시 표시) -->
+        <div id="panel-text" style="display:none; margin-top:14px; border-top:1px solid var(--border); padding-top:12px">
+          <div class="section-label">텍스트 내용</div>
+          <div class="prop-section">
+            <textarea id="prop-text-content" rows="4" class="prop-textarea"></textarea>
+          </div>
+        </div>
       </div>
 
       <!-- 블록 추가 탭 -->
@@ -126,6 +134,13 @@
       <div id="panel-empty" class="panel-empty">
         <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#ccc" stroke-width="1.5"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>
         <p>요소를 선택하면<br/>속성이 표시됩니다</p>
+        <div class="bulk-height-section">
+          <div class="prop-label">전체 블록 높이</div>
+          <div class="block-height-row">
+            <button class="btn-sm" id="btn-bulk-h-minus">− 20</button>
+            <button class="btn-sm" id="btn-bulk-h-plus">+ 20</button>
+          </div>
+        </div>
       </div>
 
       <!-- 이미지 플레이스홀더 패널 -->
@@ -139,55 +154,6 @@
           <p style="font-size:13px;color:#6b7280;margin-bottom:16px;line-height:1.5">이미지를 업로드하면<br/>이 영역을 채웁니다</p>
           <button class="btn-block btn-primary" id="btn-upload-placeholder">이미지 업로드</button>
           <input type="file" id="placeholder-upload" accept="image/*" style="display:none" />
-        </div>
-      </div>
-
-      <!-- 텍스트 속성 패널 -->
-      <div id="panel-text" class="panel-props" style="display:none">
-        <div class="prop-section">
-          <div class="prop-label">텍스트</div>
-          <textarea id="prop-text-content" rows="3" class="prop-textarea"></textarea>
-        </div>
-        <div class="prop-section">
-          <div class="prop-label">폰트</div>
-          <select id="prop-font-family" class="prop-select">
-            <option value="Noto Sans KR">Noto Sans KR</option>
-            <option value="Noto Serif KR">Noto Serif KR</option>
-            <option value="Gowun Batang">Gowun Batang</option>
-            <option value="Nanum Myeongjo">나눔명조</option>
-            <option value="Nanum Square">나눔스퀘어</option>
-            <option value="Jua">Jua</option>
-          </select>
-        </div>
-        <div class="prop-row">
-          <div class="prop-section half">
-            <div class="prop-label">크기</div>
-            <input type="number" id="prop-font-size" class="prop-input" min="6" max="200" value="24" />
-          </div>
-          <div class="prop-section half">
-            <div class="prop-label">굵기</div>
-            <select id="prop-font-weight" class="prop-select">
-              <option value="300">얇게</option>
-              <option value="400">보통</option>
-              <option value="700">굵게</option>
-              <option value="900">매우 굵게</option>
-            </select>
-          </div>
-        </div>
-        <div class="prop-section">
-          <div class="prop-label">색상</div>
-          <div class="color-row">
-            <input type="color" id="prop-text-color" class="prop-color" value="#111111" />
-            <span id="prop-text-color-hex" class="color-hex">#111111</span>
-          </div>
-        </div>
-        <div class="prop-section">
-          <div class="prop-label">정렬</div>
-          <div class="align-buttons">
-            <button class="align-btn active" data-align="left">≡</button>
-            <button class="align-btn" data-align="center">≡</button>
-            <button class="align-btn" data-align="right">≡</button>
-          </div>
         </div>
       </div>
 
@@ -236,6 +202,81 @@
         </div>
       </div>
 
+      <!-- 텍스트 속성 패널 (텍스트 선택 시) -->
+      <div id="panel-text-props" class="panel-props" style="display:none">
+        <div class="prop-section">
+          <div class="prop-label">폰트</div>
+          <select id="prop-font-family" class="prop-select">
+            <option value="Noto Sans KR">Noto Sans KR</option>
+            <option value="Noto Serif KR">Noto Serif KR</option>
+            <option value="Gowun Batang">Gowun Batang</option>
+            <option value="Nanum Myeongjo">나눔명조</option>
+            <option value="Nanum Square">나눔스퀘어</option>
+            <option value="Jua">Jua</option>
+          </select>
+        </div>
+        <div class="prop-row">
+          <div class="prop-section half">
+            <div class="prop-label">크기</div>
+            <input type="number" id="prop-font-size" class="prop-input" min="6" max="200" value="24" />
+          </div>
+          <div class="prop-section half">
+            <div class="prop-label">굵기</div>
+            <select id="prop-font-weight" class="prop-select">
+              <option value="300">얇게</option>
+              <option value="400">보통</option>
+              <option value="700">굵게</option>
+              <option value="900">매우 굵게</option>
+            </select>
+          </div>
+        </div>
+        <div class="prop-section">
+          <div class="prop-label">색상</div>
+          <div class="color-row">
+            <input type="color" id="prop-text-color" class="prop-color" value="#111111" />
+            <span id="prop-text-color-hex" class="color-hex">#111111</span>
+          </div>
+        </div>
+        <div class="prop-section">
+          <div class="prop-label">정렬</div>
+          <div class="align-buttons">
+            <button class="align-btn active" data-align="left">≡</button>
+            <button class="align-btn" data-align="center">≡</button>
+            <button class="align-btn" data-align="right">≡</button>
+          </div>
+        </div>
+        <div class="prop-section">
+          <div class="prop-label">줄간격</div>
+          <div class="slider-row">
+            <input type="range" id="prop-line-height" min="0.8" max="3.0" step="0.05" value="1.2" class="prop-slider" />
+            <span id="prop-line-height-val" class="slider-val">1.2</span>
+          </div>
+        </div>
+        <div class="prop-section">
+          <div class="prop-label">자간</div>
+          <div class="slider-row">
+            <input type="range" id="prop-char-spacing" min="-200" max="800" step="10" value="0" class="prop-slider" />
+            <span id="prop-char-spacing-val" class="slider-val">0</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 블록 높이 조절 (블록 요소 선택 시) -->
+      <div id="panel-block-height" class="panel-props" style="display:none">
+        <div class="prop-section">
+          <div class="prop-label" style="display:flex;justify-content:space-between;align-items:center">
+            <span>블록 높이</span>
+            <span id="block-height-name" style="color:#94a3b8;font-size:11px;font-weight:400;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></span>
+          </div>
+          <div class="block-height-row">
+            <button class="btn-sm" id="btn-block-h-minus">− 20</button>
+            <input type="number" id="prop-block-extra" class="prop-input" min="0" max="2000" step="20" value="0" style="flex:1;text-align:center" />
+            <span style="font-size:12px;color:#94a3b8">px</span>
+            <button class="btn-sm" id="btn-block-h-plus">+ 20</button>
+          </div>
+        </div>
+      </div>
+
       <!-- 공통 속성 (선택 요소 있을 때 하단 고정) -->
       <div id="panel-common" class="panel-common" style="display:none">
         <div class="prop-section">
@@ -255,9 +296,66 @@
         <div class="prop-section">
           <div class="prop-label">레이어</div>
           <div class="layer-buttons">
-            <button class="btn-sm" id="btn-bring-front">맨 앞으로</button>
-            <button class="btn-sm" id="btn-send-back">맨 뒤로</button>
+            <button class="btn-sm" id="btn-bring-forward">앞으로</button>
+            <button class="btn-sm" id="btn-send-backward">뒤로</button>
+            <button class="btn-sm" id="btn-bring-front">맨 앞</button>
+            <button class="btn-sm" id="btn-send-back">맨 뒤</button>
           </div>
+        </div>
+        <!-- 요소 정렬 (다중 선택 시 표시) -->
+        <div class="prop-section" id="panel-elem-align" style="display:none">
+          <div class="prop-label">요소 정렬</div>
+          <div class="align-grid">
+            <button class="align-grid-btn" title="왼쪽 맞춤" data-elem-dir="left">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="2" y1="1" x2="2" y2="13"/><rect x="3.5" y="3" width="7" height="8" rx="1"/></svg>
+            </button>
+            <button class="align-grid-btn" title="가로 중앙 맞춤" data-elem-dir="centerH">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="7" y1="1" x2="7" y2="13"/><rect x="3" y="3" width="8" height="8" rx="1"/></svg>
+            </button>
+            <button class="align-grid-btn" title="오른쪽 맞춤" data-elem-dir="right">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="12" y1="1" x2="12" y2="13"/><rect x="3.5" y="3" width="7" height="8" rx="1"/></svg>
+            </button>
+            <button class="align-grid-btn" title="위쪽 맞춤" data-elem-dir="top">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="1" y1="2" x2="13" y2="2"/><rect x="3" y="3.5" width="8" height="7" rx="1"/></svg>
+            </button>
+            <button class="align-grid-btn" title="세로 중앙 맞춤" data-elem-dir="centerV">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="1" y1="7" x2="13" y2="7"/><rect x="3" y="3" width="8" height="8" rx="1"/></svg>
+            </button>
+            <button class="align-grid-btn" title="아래쪽 맞춤" data-elem-dir="bottom">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="1" y1="12" x2="13" y2="12"/><rect x="3" y="3.5" width="8" height="7" rx="1"/></svg>
+            </button>
+          </div>
+        </div>
+        <!-- 아트보드 정렬 -->
+        <div class="prop-section">
+          <div class="prop-label">아트보드 정렬</div>
+          <div class="align-grid">
+            <button class="align-grid-btn" title="왼쪽 정렬" data-align-dir="left">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="2" y1="1" x2="2" y2="13"/><rect x="3.5" y="3" width="7" height="8" rx="1"/></svg>
+            </button>
+            <button class="align-grid-btn" title="가로 중앙 정렬" data-align-dir="centerH">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="7" y1="1" x2="7" y2="13"/><rect x="3" y="3" width="8" height="8" rx="1"/></svg>
+            </button>
+            <button class="align-grid-btn" title="오른쪽 정렬" data-align-dir="right">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="12" y1="1" x2="12" y2="13"/><rect x="3.5" y="3" width="7" height="8" rx="1"/></svg>
+            </button>
+            <button class="align-grid-btn" title="위쪽 정렬" data-align-dir="top">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="1" y1="2" x2="13" y2="2"/><rect x="3" y="3.5" width="8" height="7" rx="1"/></svg>
+            </button>
+            <button class="align-grid-btn" title="세로 중앙 정렬" data-align-dir="centerV">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="1" y1="7" x2="13" y2="7"/><rect x="3" y="3" width="8" height="8" rx="1"/></svg>
+            </button>
+            <button class="align-grid-btn" title="아래쪽 정렬" data-align-dir="bottom">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="1" y1="12" x2="13" y2="12"/><rect x="3" y="3.5" width="8" height="7" rx="1"/></svg>
+            </button>
+          </div>
+        </div>
+        <!-- 잠금 -->
+        <div class="prop-section">
+          <button class="btn-lock" id="btn-lock-obj">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            잠금
+          </button>
         </div>
         <div class="prop-section">
           <button class="btn-danger" id="btn-delete-obj">요소 삭제</button>

@@ -87,9 +87,11 @@
         card.innerHTML = `
           <div class="template-preview"></div>
           <div class="template-card-body">
-            <div class="template-card-name">${tpl.name}</div>
+            <div class="template-card-header">
+              <div class="template-card-name">${tpl.name}</div>
+              <span class="template-card-tag">${tpl.category}</span>
+            </div>
             <div class="template-card-desc">${tpl.desc}</div>
-            <span class="template-card-tag">${tpl.category}</span>
           </div>
         `;
 
@@ -108,11 +110,16 @@
       const theme = window.Themes.find(t => t.id === tpl.defaultTheme) || window.Themes[0];
       const c = theme.colors;
       container.style.background = c.bg;
+      container.style.setProperty('--preview-fade', c.bg);
 
-      // 블록 ID 기반으로 미니 프리뷰 블록 생성
-      const previewBlocks = tpl.blocks; // 전체 블록 표시
-      previewBlocks.forEach(blockId => {
+      // 상위 3개 블록만 표시
+      tpl.blocks.slice(0, 3).forEach(blockId => {
         container.appendChild(buildMiniBlock(blockId, c));
+      });
+
+      // 렌더 후 실제 콘텐츠 높이로 컨테이너 높이 맞춤
+      requestAnimationFrame(() => {
+        container.style.height = container.scrollHeight + 'px';
       });
     }
 
@@ -281,15 +288,22 @@
           </button>
         `;
 
-        // 썸네일: 이미지 있으면 표시, 없으면 테마 배경색
+        // 썸네일: 저장된 캡처 있으면 이미지, 없으면 테마 그라데이션
         const thumbEl = card.querySelector(`#pthumb-${proj.id}`);
         const theme = window.Themes.find(t => t.id === proj.themeId) || window.Themes[0];
-        thumbEl.style.background = theme.colors.bg;
+        const c = theme.colors;
         if (proj.thumbnail) {
           const img = document.createElement('img');
           img.src = proj.thumbnail;
           img.alt = proj.name;
           thumbEl.appendChild(img);
+        } else {
+          thumbEl.style.background = `linear-gradient(135deg, ${c.bg} 60%, ${c.accent}30 100%)`;
+          // 악센트 컬러 스트라이프
+          const stripe = document.createElement('div');
+          stripe.style.cssText = `position:absolute;top:0;left:0;width:4px;height:100%;background:${c.accent};border-radius:0`;
+          thumbEl.style.position = 'relative';
+          thumbEl.appendChild(stripe);
         }
 
         // 카드 클릭 → 에디터 열기
