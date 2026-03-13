@@ -13,7 +13,11 @@
   <!-- Fabric.js -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.1/fabric.min.js"></script>
 
+  <!-- Google GenAI SDK (Gemini 이미지 생성용) -->
+  <script type="importmap">{ "imports": { "@google/genai": "https://esm.sh/@google/genai" } }</script>
+
   <link rel="stylesheet" href="css/editor.css" />
+  <link rel="stylesheet" href="css/ai-fill.css" />
 </head>
 <body>
 
@@ -42,6 +46,15 @@
       </div>
       <span class="zoom-label" id="zoom-label">100%</span>
       <span class="save-status" id="save-status"></span>
+      <div class="ai-step-group">
+        <button class="btn-ai-step btn-ai-step--active" id="btn-ai-fill" title="GPT로 문구 자동 생성">
+          <span class="ai-step-num">①</span> 문구 생성
+        </button>
+        <span class="ai-step-arrow">›</span>
+        <button class="btn-ai-step btn-ai-step--idle" id="btn-ai-image" title="Gemini로 이미지 생성">
+          <span class="ai-step-num">②</span> 이미지 생성
+        </button>
+      </div>
       <button class="btn-danger-soft" id="btn-reset" title="캔버스 전체 초기화">초기화</button>
       <button class="btn-secondary" id="btn-save">저장 <kbd>Ctrl+S</kbd></button>
       <button class="btn-primary" id="btn-export">내보내기</button>
@@ -395,6 +408,8 @@
   <script src="js/panel-right.js"></script>
   <script src="js/panel-left.js"></script>
   <script src="js/export.js"></script>
+  <script src="js/config.js"></script>
+  <script src="js/ai-fill.js"></script>
   <script src="js/editor.js"></script>
 </body>
 </html>

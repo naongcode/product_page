@@ -3,7 +3,7 @@
  * 모든 모듈 초기화 및 글로벌 이벤트 연결
  */
 
-let currentProjectId = null;
+var currentProjectId = null;
 
 document.addEventListener('DOMContentLoaded', () => {
   // 1. 캔버스 초기화
@@ -16,6 +16,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // 3. 내보내기 초기화
   ExportManager.init();
+
+  // 4-0. AI 채우기 초기화
+  if (window.AiFill) AiFill.init();
 
   // 4. 툴바 버튼 연결
   document.getElementById('btn-undo').addEventListener('click', CanvasManager.undo);
@@ -59,6 +62,9 @@ document.addEventListener('DOMContentLoaded', () => {
     CanvasManager.fitToScreen();
     setTimeout(saveProject, 300);
   }
+
+  // 6-1. AI 결과 복원 (currentProjectId 확정 후)
+  if (window.AiFill) AiFill.loadAfterProject();
 
   // 7. 저장 버튼 + Ctrl+S
   document.getElementById('btn-save').addEventListener('click', saveProject);
@@ -137,7 +143,7 @@ function saveProject() {
   const data = {
     id: currentProjectId,
     name: document.getElementById('project-name').textContent.trim() || '새 프로젝트',
-    canvas: canvas.toJSON(['name', '_blockId', '_blockKey', '_isHeading', '_isAccent', '_isPlaceholder', '_isPlaceholderLabel', '_isSpacer', 'excludeFromExport']),
+    canvas: canvas.toJSON(['name', '_blockId', '_blockIndex', '_blockKey', '_isHeading', '_isAccent', '_isPlaceholder', '_isPlaceholderLabel', '_isSpacer', '_placeholderIndex', '_placeholderWidth', '_placeholderHeight', 'excludeFromExport']),
     blocks: BlockManager.blocks,
     themeId: ThemeManager.getCurrent()?.id || '',
     artboardHeight: CanvasManager.getArtboardHeight(),

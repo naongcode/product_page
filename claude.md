@@ -85,3 +85,7 @@ templates.js → themes.js → project-db.js → blocks.js
 | `CONTENT_W` | 1040px (1200 - 80*2) | blocks.js |
 | DB 이름 | `ProductPageEditor` | project-db.js |
 | DB 버전 | 2 | project-db.js |
+
+## 참고할 프로젝트
+C:\Users\user\Desktop\project\nanopage\claude.md
+

@@ -296,7 +296,7 @@ function bindKeyboardShortcuts() {
 
 // ===== 히스토리 =====
 function saveHistory() {
-  const json = JSON.stringify(canvas.toJSON(['name', '_blockId', '_blockKey', '_isPlaceholder', '_isPlaceholderLabel', '_isSpacer', '_isAccent', 'excludeFromExport']));
+  const json = JSON.stringify(canvas.toJSON(['name', '_blockId', '_blockIndex', '_blockKey', '_isPlaceholder', '_isPlaceholderLabel', '_isSpacer', '_isAccent', '_placeholderIndex', '_placeholderWidth', '_placeholderHeight', 'excludeFromExport']));
   // 현재 위치 이후 히스토리 제거
   history = history.slice(0, historyIndex + 1);
   history.push(json);

@@ -57,11 +57,13 @@ const BlockBuilders = {
         mkText(title, ARTBOARD_W / 2, yOffset + 232, {
           fontSize: 90, fontFamily: f.heading, fontWeight: '900', lineHeight: 1.2,
           fill: titleColor, textAlign: 'center', originX: 'center', _isHeading: true, _isHeroText: true, width: 960,
+          _contentKey: 'title',
         }),
         mkRect(ARTBOARD_W / 2 - 30, dividerY, 60, 3, dividerColor, 'center', '_isHeroDivider'),
         mkText(subtitle, ARTBOARD_W / 2, subtitleY, {
           fontSize: 38, fontFamily: f.body, fontWeight: '400', lineHeight: 1.2,
           fill: subColor, textAlign: 'center', originX: 'center', _isHeroText: true, width: 960,
+          _contentKey: 'subtitle',
         }),
       ]
     };
@@ -79,15 +81,17 @@ const BlockBuilders = {
       height: h,
       objects: [
         mkRect(0, yOffset, ARTBOARD_W, h, c.bg, 'left', '_isBg'),
-        mkPlaceholder(0, yOffset, imgW, h, '이미지 영역\n더블클릭하여 업로드'),
+        mkPlaceholder(0, yOffset, imgW, h, '이미지 영역\n더블클릭하여 업로드', 0),
         mkRect(colCx - 20, yOffset + 228, 40, 4, c.accent, 'left', '_isAccent'),
         mkText(title, colCx, yOffset + 248, {
           fontSize: 52, fontFamily: f.heading, fontWeight: '800', lineHeight: 1.2,
           fill: c.text, textAlign: 'center', originX: 'center', _isHeading: true, width: 480,
+          _contentKey: 'title',
         }),
         mkText(desc, colCx, yOffset + 356, {
           fontSize: 28, fontFamily: f.body, fontWeight: '400',
           fill: c.subtext, lineHeight: 1.7, textAlign: 'center', originX: 'center', width: 480,
+          _contentKey: 'desc',
         }),
       ]
     };
@@ -105,15 +109,17 @@ const BlockBuilders = {
       height: h,
       objects: [
         mkRect(0, yOffset, ARTBOARD_W, h, c.surface || c.bg, 'left', '_isSurface'),
-        mkPlaceholder(imgX, yOffset, ARTBOARD_W / 2, h, '이미지 영역\n더블클릭하여 업로드'),
+        mkPlaceholder(imgX, yOffset, ARTBOARD_W / 2, h, '이미지 영역\n더블클릭하여 업로드', 0),
         mkRect(colCx - 20, yOffset + 228, 40, 4, c.accent, 'left', '_isAccent'),
         mkText(title, colCx, yOffset + 248, {
           fontSize: 52, fontFamily: f.heading, fontWeight: '800', lineHeight: 1.2,
           fill: c.text, textAlign: 'center', originX: 'center', _isHeading: true, width: 480,
+          _contentKey: 'title',
         }),
         mkText(desc, colCx, yOffset + 356, {
           fontSize: 28, fontFamily: f.body, fontWeight: '400',
           fill: c.subtext, lineHeight: 1.7, textAlign: 'center', originX: 'center', width: 480,
+          _contentKey: 'desc',
         }),
       ]
     };
@@ -142,11 +148,11 @@ const BlockBuilders = {
       objects: [
         mkRect(0, yOffset, ARTBOARD_W, h, c.bg, 'left', '_isBg'),
         mkCircle(cx1, yOffset + 182, 30, c.accent, '_isAccent'),
-        mkText(items[0]?.title || defaults[0].title, cx1, yOffset + 250, txtOpts(true)),
-        mkText(items[0]?.desc  || defaults[0].desc,  cx1, yOffset + 320, txtOpts(false)),
+        mkText(items[0]?.title || defaults[0].title, cx1, yOffset + 250, { ...txtOpts(true),  _contentKey: 'items[0].title' }),
+        mkText(items[0]?.desc  || defaults[0].desc,  cx1, yOffset + 320, { ...txtOpts(false), _contentKey: 'items[0].desc'  }),
         mkCircle(cx2, yOffset + 182, 30, c.accent2 || c.accent, '_isAccent2'),
-        mkText(items[1]?.title || defaults[1].title, cx2, yOffset + 250, txtOpts(true)),
-        mkText(items[1]?.desc  || defaults[1].desc,  cx2, yOffset + 320, txtOpts(false)),
+        mkText(items[1]?.title || defaults[1].title, cx2, yOffset + 250, { ...txtOpts(true),  _contentKey: 'items[1].title' }),
+        mkText(items[1]?.desc  || defaults[1].desc,  cx2, yOffset + 320, { ...txtOpts(false), _contentKey: 'items[1].desc'  }),
       ]
     };
   },
@@ -176,10 +182,12 @@ const BlockBuilders = {
         mkText(items[i]?.title || defaults[i].title, cx, yOffset + 242, {
           fontSize: 36, fontFamily: f.heading, fontWeight: '800', lineHeight: 1.2,
           fill: c.text, textAlign: 'center', originX: 'center', _isHeading: true, width: Math.floor(colW * 0.84),
+          _contentKey: `items[${i}].title`,
         }),
         mkText(items[i]?.desc || defaults[i].desc, cx, yOffset + 304, {
           fontSize: 25, fontFamily: f.body, fill: c.subtext, lineHeight: 1.7,
           textAlign: 'center', originX: 'center', width: Math.floor(colW * 0.84),
+          _contentKey: `items[${i}].desc`,
         })
       );
     });
@@ -191,7 +199,7 @@ const BlockBuilders = {
     return {
       height: h,
       objects: [
-        mkPlaceholder(0, yOffset, ARTBOARD_W, h, '이미지 영역\n더블클릭하여 업로드'),
+        mkPlaceholder(0, yOffset, ARTBOARD_W, h, '이미지 영역\n더블클릭하여 업로드', 0),
       ]
     };
   },
@@ -218,6 +226,7 @@ const BlockBuilders = {
       mkText(sectionTitle, ARTBOARD_W / 2, yOffset + (headerH - 46) / 2, {
         fontSize: 44, fontFamily: f.heading, fontWeight: '800', lineHeight: 1.2,
         fill: c.text, textAlign: 'center', originX: 'center', _isHeading: true,
+        _contentKey: 'title',
       }),
     ];
     rows.forEach(([label, value], i) => {
@@ -228,11 +237,11 @@ const BlockBuilders = {
         mkRect(BLOCK_PADDING, rowY, labelW, rowH, isEven ? c.bg : c.surface || '#f8f9fa', 'left', isEven ? '_isBg' : '_isSurface'),
         mkText(label, BLOCK_PADDING + 24, rowY + rowH / 2, {
           fontSize: 26, fontFamily: f.body, fontWeight: '700', fill: c.text, originY: 'center',
-          width: labelW - 30,
+          width: labelW - 30, _contentKey: `rows[${i}][0]`,
         }),
         mkText(value, BLOCK_PADDING + labelW + 24, rowY + rowH / 2, {
           fontSize: 26, fontFamily: f.body, fill: c.subtext, originY: 'center',
-          width: CONTENT_W - labelW - 48,
+          width: CONTENT_W - labelW - 48, _contentKey: `rows[${i}][1]`,
         })
       );
     });
@@ -246,8 +255,8 @@ const BlockBuilders = {
     return {
       height: h,
       objects: [
-        mkPlaceholder(0, yOffset, imgW, h, '이미지 1\n더블클릭하여 업로드'),
-        mkPlaceholder(imgW + gap, yOffset, imgW, h, '이미지 2\n더블클릭하여 업로드'),
+        mkPlaceholder(0, yOffset, imgW, h, '이미지 1\n더블클릭하여 업로드', 0),
+        mkPlaceholder(imgW + gap, yOffset, imgW, h, '이미지 2\n더블클릭하여 업로드', 1),
       ]
     };
   },
@@ -259,9 +268,9 @@ const BlockBuilders = {
     return {
       height: h,
       objects: [
-        mkPlaceholder(0, yOffset, imgW, h, '이미지 1\n더블클릭하여 업로드'),
-        mkPlaceholder(imgW + gap, yOffset, imgW, h, '이미지 2\n더블클릭하여 업로드'),
-        mkPlaceholder((imgW + gap) * 2, yOffset, imgW, h, '이미지 3\n더블클릭하여 업로드'),
+        mkPlaceholder(0, yOffset, imgW, h, '이미지 1\n더블클릭하여 업로드', 0),
+        mkPlaceholder(imgW + gap, yOffset, imgW, h, '이미지 2\n더블클릭하여 업로드', 1),
+        mkPlaceholder((imgW + gap) * 2, yOffset, imgW, h, '이미지 3\n더블클릭하여 업로드', 2),
       ]
     };
   },
@@ -279,11 +288,13 @@ const BlockBuilders = {
         mkText(title, ARTBOARD_W / 2, yOffset + 166, {
           fontSize: 62, fontFamily: f.heading, fontWeight: '800', lineHeight: 1.2,
           fill: c.text, textAlign: 'center', originX: 'center', _isHeading: true, width: 880,
+          _contentKey: 'title',
         }),
         mkRect(ARTBOARD_W / 2 - 30, yOffset + 284, 60, 4, c.accent, 'center', '_isAccent'),
         mkText(body, ARTBOARD_W / 2, yOffset + 314, {
           fontSize: 28, fontFamily: f.body, fontWeight: '400',
           fill: c.subtext, textAlign: 'center', originX: 'center', lineHeight: 1.8, width: 880,
+          _contentKey: 'body',
         }),
       ]
     };
@@ -308,6 +319,7 @@ const BlockBuilders = {
       objs.push(
         mkText('•  ' + txt, BLOCK_PADDING, yOffset + itemsStart + i * rowH, {
           fontSize: 26, fontFamily: f.body, fill: c.subtext, lineHeight: 1.4, width: CONTENT_W,
+          _contentKey: `items[${i}]`,
         })
       );
     });
@@ -331,10 +343,12 @@ const BlockBuilders = {
         mkText(name, ARTBOARD_W / 2, yOffset + 130, {
           fontSize: 74, fontFamily: f.heading, fontWeight: '900', lineHeight: 1.2,
           fill: nameColor, textAlign: 'center', originX: 'center', _isHeading: true, _isHeroText: true,
+          _contentKey: 'name',
         }),
         mkText(slogan, ARTBOARD_W / 2, yOffset + 276, {
           fontSize: 32, fontFamily: f.body, fontWeight: '300', lineHeight: 1.2,
           fill: sloganColor, textAlign: 'center', originX: 'center', _isHeroText: true,
+          _contentKey: 'slogan',
         }),
       ]
     };
@@ -374,14 +388,17 @@ const BlockBuilders = {
         mkText(item.step, cx, circleY, {
           fontSize: 30, fontFamily: f.heading, fontWeight: '800',
           fill: inCircleColor, textAlign: 'center', originX: 'center', originY: 'center',
+          _contentKey: `items[${i}].step`,
         }),
         mkText(item.title, cx, yOffset + 344, {
           fontSize: 34, fontFamily: f.heading, fontWeight: '800', lineHeight: 1.2,
           fill: c.text, textAlign: 'center', originX: 'center', _isHeading: true, width: Math.floor(colW * 0.84),
+          _contentKey: `items[${i}].title`,
         }),
         mkText(item.desc, cx, yOffset + 412, {
           fontSize: 26, fontFamily: f.body, fill: c.subtext, lineHeight: 1.7,
           textAlign: 'center', originX: 'center', width: Math.floor(colW * 0.84),
+          _contentKey: `items[${i}].desc`,
         })
       );
     });
@@ -417,12 +434,15 @@ const BlockBuilders = {
         mkRect(x, cardTop, cardW, cardH, c.surface || '#f8f9fa', 'left', '_isSurface'),
         mkText(item.stars, x + 22, cardTop + 30, {
           fontSize: 26, fontFamily: f.body, fill: c.accent,
+          _contentKey: `items[${i}].stars`,
         }),
         mkText(item.text, x + 22, cardTop + 86, {
           fontSize: 25, fontFamily: f.body, fill: c.subtext, lineHeight: 1.75, width: cardW - 44,
+          _contentKey: `items[${i}].text`,
         }),
         mkText('— ' + item.name, x + 22, cardTop + cardH - 52, {
           fontSize: 25, fontFamily: f.body, fontWeight: '700', fill: c.text, width: cardW - 44,
+          _contentKey: `items[${i}].name`,
         })
       );
     });
@@ -455,6 +475,7 @@ const BlockBuilders = {
       mkText(sectionTitle, ARTBOARD_W / 2, yOffset + (headerH - 46) / 2, {
         fontSize: 44, fontFamily: f.heading, fontWeight: '800', lineHeight: 1.2,
         fill: c.text, textAlign: 'center', originX: 'center', _isHeading: true,
+        _contentKey: 'title',
       }),
       mkRect(ARTBOARD_W / 2 - 24, yOffset + (headerH - 46) / 2 + 52, 48, accentBarH, c.accent, 'left', '_isAccent'),
     ];
@@ -466,11 +487,11 @@ const BlockBuilders = {
         mkRect(BLOCK_PADDING, rowY, labelW, rowH, c.surface || '#f0f4f8', 'left', '_isSurface'),
         mkText(label, BLOCK_PADDING + 24, rowY + rowH / 2, {
           fontSize: 26, fontFamily: f.body, fontWeight: '700', fill: c.text, originY: 'center',
-          width: labelW - 30,
+          width: labelW - 30, _contentKey: `rows[${i}][0]`,
         }),
         mkText(value, BLOCK_PADDING + labelW + 24, rowY + rowH / 2, {
           fontSize: 26, fontFamily: f.body, fill: c.subtext, originY: 'center',
-          width: CONTENT_W - labelW - 48,
+          width: CONTENT_W - labelW - 48, _contentKey: `rows[${i}][1]`,
         })
       );
     });
@@ -497,10 +518,12 @@ const BlockBuilders = {
         mkText(headline, ARTBOARD_W / 2, yOffset + 130, {
           fontSize: 64, fontFamily: f.heading, fontWeight: '900', lineHeight: 1.2,
           fill: headColor, textAlign: 'center', originX: 'center', _isHeading: true, _isHeroText: true, width: 960,
+          _contentKey: 'headline',
         }),
         mkText(sub, ARTBOARD_W / 2, yOffset + 318, {
           fontSize: 30, fontFamily: f.body, fontWeight: '400', lineHeight: 1.4,
           fill: subColor, textAlign: 'center', originX: 'center', _isHeroText: true, width: 960,
+          _contentKey: 'sub',
         }),
       ]
     };
@@ -542,6 +565,7 @@ function mkText(text, left, top, opts = {}) {
     ...(useTextbox ? { width: opts.width } : {}),
   });
   if (opts._isHeroText) obj._isHeroText = true;
+  if (opts._contentKey) obj._contentKey = opts._contentKey;
   return obj;
 }
 
@@ -551,7 +575,7 @@ function mkCircle(left, top, radius, fill, flag = null) {
   return new fabric.Circle(opts);
 }
 
-function mkPlaceholder(left, top, width, height, label) {
+function mkPlaceholder(left, top, width, height, label, placeholderIndex = 0) {
   const rect = new fabric.Rect({
     left, top, width, height,
     fill: '#e2e8f0',
@@ -559,6 +583,7 @@ function mkPlaceholder(left, top, width, height, label) {
     stroke: 'transparent',
     strokeWidth: 0,
     _isPlaceholder: true,
+    _placeholderIndex: placeholderIndex,
   });
   const fontSize = Math.max(16, Math.min(28, Math.round(width / 18)));
   const text = new fabric.IText(label, {
@@ -593,10 +618,12 @@ window.BlockManager = {
     const result = builder(yOffset, theme, content);
     const blockKey = blockId + '_' + Date.now() + '_' + Math.random().toString(36).slice(2);
 
+    const blockIndex = this.blocks.length;
     const flatObjs = result.objects.flat();
     flatObjs.forEach(obj => {
       obj._blockId = blockId;
       obj._blockKey = blockKey;
+      obj._blockIndex = blockIndex;
       // extraHeight가 있으면 콘텐츠를 아래로 half 이동 (위아래 반반)
       if (extraHeight > 0) obj.set('top', (obj.top || 0) + extraHeight / 2);
       canvas.add(obj);
