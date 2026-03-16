@@ -52,26 +52,28 @@ function bindElementButtons() {
   document.getElementById('btn-add-image').addEventListener('click', () => {
     document.getElementById('image-upload').click();
   });
-  document.getElementById('image-upload').addEventListener('change', function () {
+  document.getElementById('image-upload').addEventListener('change', async function () {
     const file = this.files[0];
     if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      fabric.Image.fromURL(e.target.result, (img) => {
-        const maxW = artW * 0.5;
-        if (img.width > maxW) img.scaleToWidth(maxW);
-        img.set({
-          left: getDropX(img.getScaledWidth()),
-          top: Math.max(0, getDropY()),
-        });
-        canvas.add(img);
-        canvas.setActiveObject(img);
-        canvas.renderAll();
-        CanvasManager.saveHistory();
-      });
-    };
-    reader.readAsDataURL(file);
     this.value = '';
+    const dataUrl = await new Promise(resolve => {
+      const reader = new FileReader();
+      reader.onload = e => resolve(e.target.result);
+      reader.readAsDataURL(file);
+    });
+    const src = await uploadImageToStorage(dataUrl, (window.currentProjectId || 'tmp') + '_' + Date.now());
+    fabric.Image.fromURL(src, (img) => {
+      const maxW = artW * 0.5;
+      if (img.width > maxW) img.scaleToWidth(maxW);
+      img.set({
+        left: getDropX(img.getScaledWidth()),
+        top: Math.max(0, getDropY()),
+      });
+      canvas.add(img);
+      canvas.setActiveObject(img);
+      canvas.renderAll();
+      CanvasManager.saveHistory();
+    }, { crossOrigin: 'anonymous' });
   });
 
   // 텍스트 추가

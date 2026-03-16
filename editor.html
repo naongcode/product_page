@@ -421,6 +421,23 @@
     </div>
   </div>
 
+  <script>
+    async function uploadImageToStorage(dataUrl, filenameBase) {
+      try {
+        const res = await fetch('/api/upload', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ dataUrl, filename: filenameBase }),
+        });
+        if (!res.ok) throw new Error('upload failed');
+        const { url } = await res.json();
+        return url;
+      } catch (e) {
+        console.warn('Storage 업로드 실패, base64 사용:', e.message);
+        return dataUrl; // fallback: base64 그대로 사용
+      }
+    }
+  </script>
   <script src="data/templates.js"></script>
   <script src="js/themes.js"></script>
   <script src="js/project-db.js"></script>

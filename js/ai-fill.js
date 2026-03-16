@@ -1055,6 +1055,10 @@ Requirements:
   }
 
   async function applyImageToPlaceholder(blockId, blockIndex, placeholderIndex, dataUrl) {
+    const src = await uploadImageToStorage(
+      dataUrl,
+      (window.currentProjectId || 'tmp') + '_' + blockId + '_' + blockIndex + '_' + placeholderIndex + '_' + Date.now()
+    );
     const canvas = CanvasManager.getCanvas();
     // 플레이스홀더 또는 이미 적용된 이미지 모두 탐색
     const placeholder = canvas.getObjects().find(
@@ -1071,7 +1075,7 @@ Requirements:
     if (!placeholder) throw new Error('플레이스홀더를 찾을 수 없습니다.');
 
     return new Promise((resolve, reject) => {
-      fabric.Image.fromURL(dataUrl, img => {
+      fabric.Image.fromURL(src, img => {
         if (!img) { reject(new Error('이미지 로드 실패')); return; }
 
         // 이미 적용된 이미지면 저장된 원본 크기 사용, 플레이스홀더면 rect 크기 사용
@@ -1102,7 +1106,7 @@ Requirements:
         canvas.renderAll();
         CanvasManager.saveHistory();
         resolve();
-      });
+      }, { crossOrigin: 'anonymous' });
     });
   }
 
