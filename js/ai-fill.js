@@ -166,19 +166,26 @@ window.AiFill = (() => {
   async function analyzeProductImages(images) {
     if (!images.length) return null;
 
-    const { GoogleGenAI } = await import('@google/genai');
-    const genAI = new GoogleGenAI({ apiKey: CONFIG.GOOGLE_API_KEY });
-
     const imageCountText = images.length > 1
       ? `총 ${images.length}장의 제품 이미지가 제공됩니다. 모든 이미지를 종합적으로 분석하여`
       : '이 제품 이미지를 분석하여';
-    const contents = [
+
+    const parts = [
       { text: `당신은 전문 제품 사진 분석가입니다.\n${imageCountText} 다음 정보를 JSON 형식으로 추출해주세요:\n\n{ "colors": ["주요 색상 1", "주요 색상 2"], "material": "제품의 재질", "texture": "표면 질감", "style": "디자인 스타일", "shape": "형태 및 실루엣 설명", "key_features": ["특징 1", "특징 2", "특징 3"], "suggested_mood": "추천 촬영 분위기", "lighting_suggestion": "추천 조명 유형", "suggest_model": "착용/사용 모델 추천 (예: '한국인 여성 20대, 캐주얼 의류 착용, 자연스러운 미소' 또는 '없음')" }\n\n여러 이미지가 있다면 각 이미지를 종합하여 하나의 결과로 통합해주세요. 구체적이고 상세하게 분석해주세요.` },
       ...images.map(img => ({ inlineData: { mimeType: img.mimeType, data: img.data } })),
     ];
 
-    const result = await genAI.models.generateContent({ model: 'gemini-2.0-flash', contents });
-    const text = result.candidates?.[0]?.content?.parts?.find(p => p.text)?.text || '';
+    const res = await fetch('/api/gemini', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ model: 'gemini-2.0-flash', contents: [{ parts }] }),
+    });
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.error?.message || 'Gemini 분석 실패');
+    }
+    const data = await res.json();
+    const text = data.candidates?.[0]?.content?.parts?.find(p => p.text)?.text || '';
     const match = text.match(/\{[\s\S]*\}/);
     if (!match) throw new Error('Gemini 응답에서 JSON을 찾을 수 없습니다. 응답: ' + text.slice(0, 200));
     return JSON.parse(match[0]);
@@ -450,12 +457,9 @@ ${JSON.stringify(blockSchema, null, 2)}
 - 모델: 스키마에서 모델 필드가 "[한국인 타겟 고객 기반으로 반드시 작성]"인 블록은 반드시 한국인 모델을 구체적으로 묘사 (성별/연령대/외형/표정/포즈). 타겟 고객(${product.target || '일반 소비자'})의 전형적인 모습으로. "없음"이라고 이미 명시된 블록만 없음으로 작성
 - 같은 블록 타입이라도 각자 다른 메시지이므로 서로 다른 촬영 컨셉 적용`;
 
-    const res = await fetch('https://api.openai.com/v1/chat/completions', {
+    const res = await fetch('/api/openai', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${CONFIG.OPENAI_API_KEY}`,
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         model: 'gpt-4o-mini',
         messages: [
@@ -495,6 +499,22 @@ ${JSON.stringify(blockSchema, null, 2)}
       'b14-review':       { role: '고객 후기', items: [{ stars:'⭐⭐⭐⭐⭐', text:'[작성]', name:'[작성]' }, { stars:'⭐⭐⭐⭐⭐', text:'[작성]', name:'[작성]' }, { stars:'⭐⭐⭐⭐⭐', text:'[작성]', name:'[작성]' }] },
       'b15-cta':          { role: '구매 유도 배너', text: { headline: '[작성]', sub: '[작성]' } },
       'b16-delivery':     { role: '배송 안내', rows: [['배송방법','[값]'],['배송기간','[값]'],['배송비','[값]'],['교환','[값]'],['반품','[값]'],['환불','[값]'],['주의','[값]']] },
+      'b19-journey':      { role: '제품 여정 5단계 — 원료→개발→검수→생산→배송 등 브랜드 스토리', text: { label: '[작성]' }, items: [{ step:'01', title:'[작성]', desc:'[작성]' }, { step:'02', title:'[작성]', desc:'[작성]' }, { step:'03', title:'[작성]', desc:'[작성]' }, { step:'04', title:'[작성]', desc:'[작성]' }, { step:'05', title:'[작성]', desc:'[작성]' }] },
+      'b20-comparison':   { role: '사용 전후 비교 이미지', text: { title: '[작성]', beforeLabel: 'BEFORE', afterLabel: 'AFTER' }, imageSlots: 2, needsModel: true },
+      'b21-benefit-4col': { role: '혜택 4단 카드 — 핵심 혜택 4가지', items: [{ num:'01', title:'[작성]', desc:'[작성]' }, { num:'02', title:'[작성]', desc:'[작성]' }, { num:'03', title:'[작성]', desc:'[작성]' }, { num:'04', title:'[작성]', desc:'[작성]' }] },
+      'b22-testimonial':  { role: '대형 고객 추천사 — 가장 인상적인 단일 후기', text: { quote: '[작성]', name: '[작성]', stars: '★★★★★' } },
+      'b23-timeline':     { role: '브랜드/제품 연대기 — 3개 연도/단계로 성장 스토리 표현', items: [{ year: '[연도/단계]', title: '[작성]', desc: '[작성]' }, { year: '[연도/단계]', title: '[작성]', desc: '[작성]' }, { year: '[연도/단계]', title: '[작성]', desc: '[작성]' }] },
+      'b24-split-screen': { role: '이미지+텍스트 50:50 분할 — 한 가지 핵심 메시지 강조', text: { label: '[작성]', title: '[작성]', desc: '[작성]' }, imageSlots: 1 },
+      'b25-stats':        { role: '임팩트 있는 수치 3개 — 만족도/판매량/수상 등 숫자로 신뢰 강조', items: [{ value: '[숫자+단위]', label: '[설명]' }, { value: '[숫자+단위]', label: '[설명]' }, { value: '[숫자+단위]', label: '[설명]' }] },
+      'b26-manifesto':    { role: '브랜드 선언문 — 철학/가치관을 강렬하게 한 페이지에 담음', text: { heading: '[작성]', body: '[작성]', tagline: '[작성]' } },
+      'b27-ugc-grid':     { role: '고객 SNS 사진 그리드 — 실제 사용자 사진 5컷 + 핸들', text: { label: '[작성]' }, captions: ['[작성]', '[작성]', '[작성]', '[작성]', '[작성]'], imageSlots: 5 },
+      'b28-faq':          { role: '자주 묻는 질문 4세트 — 구매 전 궁금증 해소', text: { title: '[작성]' }, items: [{ q: '[질문]', a: '[답변]' }, { q: '[질문]', a: '[답변]' }, { q: '[질문]', a: '[답변]' }, { q: '[질문]', a: '[답변]' }] },
+      'b29-img-overlay':  { role: '풀이미지 위 플로팅 카드 — 강렬한 비주얼에 핵심 카피 오버랩', text: { title: '[작성]', desc: '[작성]' }, imageSlots: 1 },
+      'b30-process-num':  { role: '번호 프로세스 3단계 — 제작/생산/사용 과정을 순서대로 설명', text: { title: '[작성]' }, items: [{ num: '01', title: '[작성]', desc: '[작성]' }, { num: '02', title: '[작성]', desc: '[작성]' }, { num: '03', title: '[작성]', desc: '[작성]' }] },
+      'b31-staggered':    { role: '이미지+텍스트 좌우 교차 2세트 — 두 가지 핵심 특징을 시각적으로 대비', items: [{ title: '[작성]', desc: '[작성]' }, { title: '[작성]', desc: '[작성]' }], imageSlots: 2 },
+      'b32-ingredient':   { role: '재료/성분 그리드 — 메인 제품 + 핵심 원료 4가지 시각화', text: { title: '[작성]', mainLabel: '[작성]' }, labels: ['[작성]', '[작성]', '[작성]', '[작성]'], imageSlots: 5 },
+      'b33-creator-story':{ role: '제작자/농부/대표 스토리 — 인물 사진과 진솔한 인용구로 신뢰 구축', text: { quote: '[작성]', name: '[작성]', role: '[직함/경력]' }, imageSlots: 1, needsModel: true },
+      'b34-magazine':     { role: '매거진 스타일 비대칭 레이아웃 — 대형 이미지 + 감성 텍스트 + 서브 이미지', text: { title: '[작성]', desc: '[작성]', caption: '[작성]' }, imageSlots: 2 },
     };
 
     const modelField = (needsModel) => needsModel
@@ -736,6 +756,7 @@ ${JSON.stringify(blockSchema, null, 2)}
         await onGenerateImage(btn, slots, el);
       }
     });
+
   }
 
   function renderTextResults(texts) {
@@ -831,7 +852,7 @@ ${JSON.stringify(blockSchema, null, 2)}
             const fieldName = obj._contentKey.split('.').pop().replace(/\[\d+\].*/, '');
             if (obj.type === 'textbox' && SINGLE_LINE_FIELDS.has(fieldName)) {
               obj.initDimensions?.();
-              const MIN_FONT = 18;
+              const MIN_FONT = Math.max(18, Math.round(obj.fontSize * 0.6));
               while ((obj._textLines?.length || 1) > 1 && obj.fontSize > MIN_FONT) {
                 obj.set('fontSize', obj.fontSize - 2);
                 obj.initDimensions?.();
@@ -905,9 +926,6 @@ ${JSON.stringify(blockSchema, null, 2)}
   }
 
   async function generateImageWithGemini(promptText, refImages = []) {
-    const { GoogleGenAI } = await import('@google/genai');
-    const genAI = new GoogleGenAI({ apiKey: CONFIG.GOOGLE_API_KEY });
-
     const hasRef = refImages.length > 0;
     const fullPrompt = hasRef
       ? `${refImages.length > 1
@@ -929,18 +947,27 @@ Requirements:
 - The product should be clearly visible and be the main focus`
       : `Create a professional product photography image based on this scenario:\n\n${promptText}\n\nRequirements:\n- Create a photorealistic, high-quality e-commerce product image\n- Follow the exact scenario description\n- Use professional lighting and composition`;
 
-    const contents = [
+    const parts = [
       ...refImages.map(img => ({ inlineData: { mimeType: img.mimeType, data: img.data } })),
       { text: fullPrompt },
     ];
 
-    const result = await genAI.models.generateContent({
-      model: 'gemini-2.5-flash-image',
-      contents,
+    const res = await fetch('/api/gemini', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'gemini-2.5-flash-image',
+        contents: [{ parts }],
+        generationConfig: { responseModalities: ['IMAGE', 'TEXT'] },
+      }),
     });
-
-    const parts = result.candidates?.[0]?.content?.parts || [];
-    for (const part of parts) {
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.error?.message || 'Gemini 이미지 생성 실패');
+    }
+    const data = await res.json();
+    const resParts = data.candidates?.[0]?.content?.parts || [];
+    for (const part of resParts) {
       if (part.inlineData?.data) {
         return `data:image/png;base64,${part.inlineData.data}`;
       }

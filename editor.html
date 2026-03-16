@@ -189,17 +189,21 @@
       <!-- 도형 속성 패널 -->
       <div id="panel-shape" class="panel-props" style="display:none">
         <div class="prop-section">
-          <div class="prop-label">채우기 색상</div>
-          <div class="color-row">
-            <input type="color" id="prop-fill-color" class="prop-color" value="#e2e8f0" />
-            <span id="prop-fill-color-hex" class="color-hex">#e2e8f0</span>
-          </div>
-        </div>
-        <div class="prop-section">
-          <div class="prop-label">테두리 색상</div>
-          <div class="color-row">
-            <input type="color" id="prop-stroke-color" class="prop-color" value="#cccccc" />
-            <span id="prop-stroke-color-hex" class="color-hex">#cccccc</span>
+          <div class="prop-row">
+            <div style="flex:1">
+              <div class="prop-label">채우기</div>
+              <div class="color-row">
+                <input type="color" id="prop-fill-color" class="prop-color" value="#e2e8f0" />
+                <span id="prop-fill-color-hex" class="color-hex">#e2e8f0</span>
+              </div>
+            </div>
+            <div style="flex:1">
+              <div class="prop-label">테두리</div>
+              <div class="color-row">
+                <input type="color" id="prop-stroke-color" class="prop-color" value="#cccccc" />
+                <span id="prop-stroke-color-hex" class="color-hex">#cccccc</span>
+              </div>
+            </div>
           </div>
         </div>
         <div class="prop-section">
@@ -287,6 +291,14 @@
             <span style="font-size:12px;color:#94a3b8">px</span>
             <button class="btn-sm" id="btn-block-h-plus">+ 20</button>
           </div>
+        </div>
+      </div>
+
+      <!-- 블록 배경 패턴 (블록 요소 선택 시) -->
+      <div id="panel-block-bg" class="panel-props" style="display:none">
+        <div class="prop-section">
+          <div class="prop-label">배경 디자인</div>
+          <div class="bg-design-grid" id="bg-design-grid"></div>
         </div>
       </div>
 
@@ -405,11 +417,11 @@
   <script src="js/project-db.js"></script>
   <script src="js/blocks.js"></script>
   <script src="js/canvas.js"></script>
+  <script src="js/bg-presets.js"></script>
   <script src="js/panel-right.js"></script>
   <script src="js/panel-left.js"></script>
   <script src="js/export.js"></script>
-  <script src="js/config.js"></script>
   <script src="js/ai-fill.js"></script>
-  <script src="js/editor.js"></script>
+<script src="js/editor.js"></script>
 </body>
 </html>

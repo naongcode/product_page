@@ -34,6 +34,7 @@ function hidePanel() {
   document.getElementById('panel-shape').style.display = 'none';
   document.getElementById('panel-text-props').style.display = 'none';
   document.getElementById('panel-block-height').style.display = 'none';
+  document.getElementById('panel-block-bg').style.display = 'none';
   document.getElementById('panel-common').style.display = 'none';
   document.getElementById('panel-elem-align').style.display = 'none';
   // 좌측 텍스트 패널 숨김
@@ -45,18 +46,26 @@ let _suppressDeselect = false;
 
 function showBlockHeightPanel(obj) {
   const blockKey = obj?._blockKey;
-  const panel = document.getElementById('panel-block-height');
-  if (!blockKey) { panel.style.display = 'none'; _currentBlockKey = null; return; }
+  const panel   = document.getElementById('panel-block-height');
+  const bgPanel = document.getElementById('panel-block-bg');
+  if (!blockKey) {
+    panel.style.display = 'none';
+    bgPanel.style.display = 'none';
+    _currentBlockKey = null;
+    return;
+  }
 
   _currentBlockKey = blockKey;
   const block = BlockManager.blocks.find(b => b.key === blockKey);
-  if (!block) { panel.style.display = 'none'; return; }
+  if (!block) { panel.style.display = 'none'; bgPanel.style.display = 'none'; return; }
 
   panel.style.display = 'block';
   document.getElementById('prop-block-extra').value = block.extraHeight || 0;
-  // 블록 이름 표시 (id에서 앞부분 추출)
   const name = block.id.replace(/^b\d+-/, '').replace(/-/g, ' ');
   document.getElementById('block-height-name').textContent = name;
+
+  bgPanel.style.display = 'block';
+  _syncBgActive(blockKey);
 }
 
 // ===== 오브젝트 타입 판별 =====
@@ -83,6 +92,7 @@ function onSelect(e) {
     document.getElementById('panel-image').style.display = 'none';
     document.getElementById('panel-shape').style.display = 'none';
     document.getElementById('panel-block-height').style.display = 'none';
+    document.getElementById('panel-block-bg').style.display = 'none';
     document.getElementById('panel-text').style.display = 'none';
     return;
   }
@@ -528,6 +538,8 @@ function bindPropInputs() {
     const obj = CanvasManager.getCanvas().getActiveObject();
     if (obj?._blockKey) showBlockHeightPanel(obj);
   });
+
+  initBgDesignPanel();
 }
 
 // ===== 아트보드 기준 정렬 =====
@@ -631,6 +643,53 @@ function alignElements(direction) {
   // 선택 복원
   const newSel = new fabric.ActiveSelection(objects, { canvas });
   canvas.setActiveObject(newSel);
+  canvas.renderAll();
+  CanvasManager.saveHistory();
+}
+
+// ===== 블록 배경 디자인 =====
+function initBgDesignPanel() {
+  const grid = document.getElementById('bg-design-grid');
+  if (!grid || !window.BgDesigns || !window.BgDesignUtils) return;
+
+  window.BgDesigns.forEach(design => {
+    const sw = document.createElement('div');
+    sw.className = 'bg-design-swatch';
+    sw.title = design.label;
+    sw.dataset.designId = design.id;
+    sw.style.backgroundImage = `url(${BgDesignUtils.mkThumbUrl(design, 56, 36)})`;
+
+    sw.addEventListener('click', () => {
+      if (!_currentBlockKey) return;
+      _applyBgDesign(design, _currentBlockKey);
+      document.querySelectorAll('.bg-design-swatch').forEach(s => s.classList.remove('active'));
+      sw.classList.add('active');
+    });
+
+    grid.appendChild(sw);
+  });
+}
+
+function _syncBgActive(blockKey) {
+  const canvas = CanvasManager.getCanvas();
+  const bgObj  = canvas.getObjects().find(o => o._blockKey === blockKey && (o._isBg || o._isGradientHero));
+  const activeId = bgObj?._bgDesignId || null;
+  document.querySelectorAll('.bg-design-swatch').forEach(sw => {
+    sw.classList.toggle('active', sw.dataset.designId === activeId);
+  });
+}
+
+function _applyBgDesign(design, blockKey) {
+  const canvas = CanvasManager.getCanvas();
+  const bgObjs = canvas.getObjects().filter(o => o._blockKey === blockKey && (o._isBg || o._isGradientHero));
+  if (!bgObjs.length) return;
+
+  const fill = BgDesignUtils.mkFill(design);
+  bgObjs.forEach(obj => {
+    obj.set('fill', fill);
+    obj._bgDesignId = design.id;
+  });
+
   canvas.renderAll();
   CanvasManager.saveHistory();
 }

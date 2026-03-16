@@ -170,12 +170,16 @@ function renderThemeList() {
     item.className = 'theme-item';
     item.dataset.id = theme.id;
     item.innerHTML = `
-      <div class="theme-swatch-mini" style="background:${c.bg};border:1px solid ${c.accent}33">
-        <div class="theme-swatch-dot" style="background:${c.accent}"></div>
-      </div>
       <div class="theme-item-info">
         <div class="theme-item-name">${theme.name}</div>
         <div class="theme-item-desc">${theme.desc}</div>
+      </div>
+      <div class="theme-color-strip">
+        <span class="theme-color-chip" style="background:${c.bg}" title="배경"></span>
+        <span class="theme-color-chip" style="background:${c.surface}" title="서피스"></span>
+        <span class="theme-color-chip" style="background:${c.accent}" title="강조1"></span>
+        <span class="theme-color-chip" style="background:${c.accent2}" title="강조2"></span>
+        <span class="theme-color-chip" style="background:${c.hero}" title="히어로"></span>
       </div>
     `;
     item.addEventListener('click', () => {
