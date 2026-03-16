@@ -100,6 +100,35 @@ body {
   user-select: none;
 }
 
+.canvas-width-control {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0 8px;
+  height: 30px;
+}
+.canvas-width-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-sub);
+  user-select: none;
+}
+.canvas-width-select {
+  font-size: 12px;
+  color: var(--text-main);
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  outline: none;
+  padding: 0;
+  appearance: none;
+  -webkit-appearance: none;
+  min-width: 56px;
+}
+
 /* ===== 버튼 ===== */
 .btn-icon {
   width: 32px; height: 32px;
@@ -567,19 +596,18 @@ body {
 /* ===== 내보내기 모달 ===== */
 .modal-overlay {
   position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.4);
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  top: 56px;
+  right: 12px;
   z-index: 1000;
+  pointer-events: none;
 }
 .modal {
   background: white;
   border-radius: 12px;
   padding: 24px;
-  width: 320px;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+  width: 280px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+  pointer-events: all;
 }
 .modal-title {
   font-size: 16px;

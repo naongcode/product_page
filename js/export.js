@@ -30,10 +30,6 @@ function initExport() {
     document.getElementById('export-modal').style.display = 'none';
   });
 
-  // 오버레이 클릭 시 닫기
-  document.getElementById('export-modal').addEventListener('click', function (e) {
-    if (e.target === this) this.style.display = 'none';
-  });
 }
 
 function exportImage(filename, format) {

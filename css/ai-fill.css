@@ -26,6 +26,65 @@
   z-index: 2000;
 }
 
+/* 최소화 상태 — 우하단 플로팅 바 */
+.ai-modal-overlay.minimized {
+  inset: auto;
+  bottom: 24px;
+  right: 24px;
+  background: transparent;
+  pointer-events: none;
+}
+.ai-modal-overlay.minimized .ai-modal {
+  width: 300px !important;
+  max-height: unset;
+  pointer-events: all;
+}
+.ai-modal-overlay.minimized .ai-modal-body,
+.ai-modal-overlay.minimized .ai-modal-footer {
+  display: none;
+}
+.ai-modal-overlay.minimized .ai-modal-header {
+  border-bottom: none;
+  padding: 14px 16px;
+}
+
+/* 최소화 버튼 */
+.ai-modal-minimize {
+  background: none;
+  border: 1px solid #e4e7ec;
+  cursor: pointer;
+  padding: 2px 8px;
+  font-size: 13px;
+  color: #374151;
+  border-radius: 4px;
+  line-height: 1.4;
+  font-weight: 600;
+}
+.ai-modal-minimize:hover { background: #f3f4f6; }
+.ai-modal-overlay.minimized .ai-modal-minimize {
+  background: #667eea;
+  border-color: #667eea;
+  color: #fff;
+}
+
+/* 생성 주의 문구 */
+.ai-gen-caution {
+  font-size: 11px;
+  color: #92400e;
+  background: #fef3c7;
+  border-top: 1px solid #fde68a;
+  padding: 7px 16px;
+  line-height: 1.5;
+}
+
+/* 헤더 내 미니 진행 상태 */
+.ai-mini-progress {
+  font-size: 12px;
+  color: #6b7280;
+  margin-left: 8px;
+  white-space: nowrap;
+}
+
 /* 모달 박스 */
 .ai-modal {
   background: #fff;
