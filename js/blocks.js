@@ -3,9 +3,9 @@
  * 각 블록은 Fabric.js 오브젝트 배열로 구성됨
  */
 
-const ARTBOARD_W = 1200;
+let ARTBOARD_W = 1200;
 const BLOCK_PADDING = 80;      // 블록 내부 수평 패딩
-const CONTENT_W = ARTBOARD_W - BLOCK_PADDING * 2;  // 콘텐츠 폭 = 1040
+let CONTENT_W = ARTBOARD_W - BLOCK_PADDING * 2;  // 콘텐츠 폭 = 1040
 
 // ===== 블록 라이브러리 정의 =====
 window.BlockLibrary = [
@@ -1420,14 +1420,18 @@ function mkGradientRect(left, top, width, height, colorTop, colorBottom, flag = 
       { offset: 1, color: colorBottom },
     ],
   });
-  const opts = { left, top, width, height, fill: grad, selectable: true, stroke: 'transparent', strokeWidth: 0 };
+  const opts = { left, top, width, height, fill: grad, selectable: true, stroke: 'transparent', strokeWidth: 0, lockMovementX: true, lockMovementY: true, lockScalingX: true, lockScalingY: true, lockRotation: true, hasControls: false };
   if (flag) opts[flag] = true;
   return new fabric.Rect(opts);
 }
 
 
 function mkRect(left, top, width, height, fill, originX = 'left', flag = null) {
-  const opts = { left, top, width, height, fill, selectable: true, stroke: 'transparent', strokeWidth: 0 };
+  const bgFlags = ['_isBg', '_isSurface'];
+  const isBg = flag && bgFlags.includes(flag);
+  const opts = { left, top, width, height, fill, selectable: true, stroke: 'transparent', strokeWidth: 0,
+    ...(isBg ? { lockMovementX: true, lockMovementY: true, lockScalingX: true, lockScalingY: true, lockRotation: true, hasControls: false } : {})
+  };
   if (originX === 'center') opts.originX = 'center';
   if (flag) opts[flag] = true;
   return new fabric.Rect(opts);
@@ -1448,9 +1452,10 @@ function mkText(text, left, top, opts = {}) {
     _isHeading: opts._isHeading || false,
     ...(useTextbox ? { width: opts.width } : {}),
   });
-  if (opts._isHeroText)   obj._isHeroText   = true;
-  if (opts._isAccentText) obj._isAccentText = true;
-  if (opts._contentKey)   obj._contentKey   = opts._contentKey;
+  if (opts._isHeroText)          obj._isHeroText   = true;
+  if (opts._isAccentText)        obj._isAccentText = true;
+  if (opts._contentKey)          obj._contentKey   = opts._contentKey;
+  if (opts.charSpacing !== undefined) obj.set('charSpacing', opts.charSpacing);
   return obj;
 }
 
@@ -1492,6 +1497,71 @@ window.BlockManager = {
   // 현재 쌓인 블록 목록 [{id, yOffset, height}]
   blocks: [],
 
+  // 현재 아트보드 폭 반환
+  getWidth() { return ARTBOARD_W; },
+
+  // 변수만 갱신 (프로젝트 로드 시 — 오브젝트 스케일링 없음)
+  restoreWidth(w) {
+    ARTBOARD_W = w;
+    CONTENT_W = ARTBOARD_W - BLOCK_PADDING * 2;
+    CanvasManager.setArtboardWidth(w);
+    const sel = document.getElementById('canvas-width-select');
+    if (sel) sel.value = String(w);
+  },
+
+  // 폭 변경: 기존 오브젝트 비율 스케일링
+  setWidth(newWidth) {
+    const canvas = CanvasManager.getCanvas();
+    const artboard = CanvasManager.getArtboard();
+    if (!canvas || !artboard) return;
+    const oldWidth = ARTBOARD_W;
+    if (newWidth === oldWidth) return;
+    const scale = newWidth / oldWidth;
+
+    // 전역 상수 업데이트
+    ARTBOARD_W = newWidth;
+    CONTENT_W = ARTBOARD_W - BLOCK_PADDING * 2;
+    CanvasManager.setArtboardWidth(newWidth);
+
+    // 모든 비아트보드 오브젝트 비율 스케일
+    canvas.getObjects().forEach(obj => {
+      if (obj === artboard) return;
+      obj.set({ left: obj.left * scale, top: obj.top * scale });
+      const isText = obj.type === 'textbox' || obj.type === 'i-text' || obj.type === 'text';
+      if (isText) {
+        obj.set({ fontSize: Math.round(obj.fontSize * scale) });
+        if (obj.width) obj.set({ width: obj.width * scale });
+      } else {
+        obj.set({
+          scaleX: (obj.scaleX || 1) * scale,
+          scaleY: (obj.scaleY || 1) * scale,
+        });
+      }
+      // absolutePositioned clipPath 스케일 (업로드 이미지 클립)
+      if (obj.clipPath && obj.clipPath.absolutePositioned) {
+        const cp = obj.clipPath;
+        cp.set({
+          left: cp.left * scale, top: cp.top * scale,
+          scaleX: (cp.scaleX || 1) * scale, scaleY: (cp.scaleY || 1) * scale,
+        });
+        cp.setCoords();
+      }
+      obj.setCoords();
+    });
+
+    // 블록 메타데이터 업데이트
+    this.blocks.forEach(b => {
+      b.yOffset = Math.round(b.yOffset * scale);
+      b.height = Math.round(b.height * scale);
+      if (b.extraHeight) b.extraHeight = Math.round(b.extraHeight * scale);
+    });
+
+    CanvasManager.setArtboardHeight(this.getTotalHeight());
+    canvas.renderAll();
+    CanvasManager.saveHistory();
+    CanvasManager.fitToScreen();
+  },
+
   // 블록 추가 (extraHeight: 초기 여백, 기본 0)
   addBlock(blockId, content = null, extraHeight = 0) {
     const canvas = CanvasManager.getCanvas();
@@ -1517,7 +1587,7 @@ window.BlockManager = {
     // 하단 여백용 투명 spacer rect
     const spacer = new fabric.Rect({
       left: 0, top: yOffset + result.height,
-      width: 1200, height: extraHeight,
+      width: ARTBOARD_W, height: extraHeight,
       fill: 'transparent', stroke: null, strokeWidth: 0,
       selectable: false, evented: false, hoverCursor: 'default',
       _blockKey: blockKey, _isSpacer: true, excludeFromExport: true,

@@ -6,7 +6,7 @@
  * - 팬(드래그로 캔버스 이동)
  */
 
-const ARTBOARD_WIDTH = 1200;   // 출력 영역 실제 px
+let ARTBOARD_WIDTH = 1200;   // 출력 영역 실제 px
 const ARTBOARD_COLOR = '#ffffff';
 
 let canvas = null;
@@ -83,6 +83,14 @@ function getArtboardHeight() {
 function setArtboardHeight(h) {
   if (artboard) {
     artboard.set({ height: Math.max(h, 400) });
+    canvas.renderAll();
+  }
+}
+
+function setArtboardWidth(w) {
+  ARTBOARD_WIDTH = w;
+  if (artboard) {
+    artboard.set({ width: w });
     canvas.renderAll();
   }
 }
@@ -193,6 +201,11 @@ function bindCanvasEvents() {
       isMidPanning = false;
       canvas.defaultCursor = isSpaceDown ? 'grab' : 'default';
     }
+    // 캔버스 외부에서 mouseup 발생 시 Fabric.js 드래그 상태 강제 해제
+    if (canvas && canvas._currentTransform) {
+      canvas._currentTransform = null;
+      canvas.renderAll();
+    }
   });
 
   // 스페이스바 + 드래그로 캔버스 팬 (피그마/포토샵 방식)
@@ -296,7 +309,7 @@ function bindKeyboardShortcuts() {
 
 // ===== 히스토리 =====
 function saveHistory() {
-  const json = JSON.stringify(canvas.toJSON(['name', '_blockId', '_blockIndex', '_blockKey', '_isPlaceholder', '_isPlaceholderLabel', '_isSpacer', '_isAccent', '_placeholderIndex', '_placeholderWidth', '_placeholderHeight', 'excludeFromExport']));
+  const json = JSON.stringify(canvas.toJSON(['name', '_blockId', '_blockIndex', '_blockKey', '_isHeading', '_isAccent', '_isAccent2', '_isAccentText', '_isPlaceholder', '_isPlaceholderLabel', '_isSpacer', '_placeholderIndex', '_placeholderWidth', '_placeholderHeight', 'excludeFromExport', '_isBg', '_isBgAlt', '_isSurface', '_isBorder', '_isHero', '_isGradientHero', '_isHeroText', '_isHeroDivider', '_isMutedText', '_isDecor', '_contentKey']));
   // 현재 위치 이후 히스토리 제거
   history = history.slice(0, historyIndex + 1);
   history.push(json);
@@ -414,6 +427,7 @@ window.CanvasManager = {
   getArtboardWidth: () => ARTBOARD_WIDTH,
   getArtboardHeight,
   setArtboardHeight,
+  setArtboardWidth,
   drawArtboard,
   fitToScreen,
   setZoom,
