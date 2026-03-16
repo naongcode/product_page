@@ -66,7 +66,13 @@ document.addEventListener('DOMContentLoaded', () => {
   // 6-1. AI 결과 복원 (currentProjectId 확정 후)
   if (window.AiFill) AiFill.loadAfterProject();
 
-  // 7. 저장 버튼 + Ctrl+S
+  // 7. 캔버스 폭 선택
+  document.getElementById('canvas-width-select')?.addEventListener('change', (e) => {
+    const newWidth = parseInt(e.target.value, 10);
+    if (!isNaN(newWidth)) BlockManager.setWidth(newWidth);
+  });
+
+  // 8. 저장 버튼 + Ctrl+S
   document.getElementById('btn-save').addEventListener('click', saveProject);
   document.addEventListener('keydown', (e) => {
     if (e.ctrlKey && e.key === 's') {
@@ -143,9 +149,10 @@ function saveProject() {
   const data = {
     id: currentProjectId,
     name: document.getElementById('project-name').textContent.trim() || '새 프로젝트',
-    canvas: canvas.toJSON(['name', '_blockId', '_blockIndex', '_blockKey', '_isHeading', '_isAccent', '_isPlaceholder', '_isPlaceholderLabel', '_isSpacer', '_placeholderIndex', '_placeholderWidth', '_placeholderHeight', 'excludeFromExport']),
+    canvas: canvas.toJSON(['name', '_blockId', '_blockIndex', '_blockKey', '_isHeading', '_isAccent', '_isAccent2', '_isAccentText', '_isPlaceholder', '_isPlaceholderLabel', '_isSpacer', '_placeholderIndex', '_placeholderWidth', '_placeholderHeight', 'excludeFromExport', '_isBg', '_isBgAlt', '_isSurface', '_isBorder', '_isHero', '_isGradientHero', '_isHeroText', '_isHeroDivider', '_isMutedText', '_isDecor', '_contentKey']),
     blocks: BlockManager.blocks,
     themeId: ThemeManager.getCurrent()?.id || '',
+    artboardWidth: BlockManager.getWidth(),
     artboardHeight: CanvasManager.getArtboardHeight(),
     savedAt: Date.now(),
     thumbnail,
@@ -188,10 +195,16 @@ function loadProject(id) {
     if (data.canvas) {
       _isLoadingProject = true; // 로드 중 자동저장 억제
       CanvasManager.loadJSON(data.canvas, () => {
+        if (data.artboardWidth && data.artboardWidth !== 1200) {
+          BlockManager.restoreWidth(data.artboardWidth);
+        }
         if (data.artboardHeight) CanvasManager.setArtboardHeight(data.artboardHeight);
         if (data.blocks) {
           BlockManager.blocks = data.blocks;
           if (window.PanelLeft?.refreshBlockStack) window.PanelLeft.refreshBlockStack();
+        }
+        if (data.themeId && window.ThemeManager) {
+          ThemeManager.current = ThemeManager.getTheme(data.themeId) || null;
         }
         CanvasManager.fitToScreen();
         _isLoadingProject = false;

@@ -8,6 +8,62 @@
 
 window.AiFill = (() => {
 
+  // ─── API 헬퍼 ────────────────────────────────────────────────────────────
+  // 로컬: CONFIG 키 / 프로덕션: /api/config 에서 키 수령 후 직접 호출
+  let _googleApiKey = (typeof CONFIG !== 'undefined' && CONFIG.GOOGLE_API_KEY) ? CONFIG.GOOGLE_API_KEY : null;
+
+  async function _ensureGoogleKey() {
+    if (_googleApiKey) return;
+    try {
+      const res = await fetch('/api/config');
+      const cfg = await res.json();
+      _googleApiKey = cfg.googleApiKey || null;
+    } catch (e) {
+      console.warn('API config 로드 실패:', e);
+    }
+  }
+
+  async function _callGemini(model, body) {
+    await _ensureGoogleKey();
+    if (!_googleApiKey) throw new Error('Google API 키가 없습니다.');
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${_googleApiKey}`;
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error?.message || `Gemini 오류 (${res.status})`);
+    }
+    return res.json();
+  }
+
+  async function _callOpenAI(body) {
+    let res;
+    if (_isLocal) {
+      res = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${CONFIG.OPENAI_API_KEY}`,
+        },
+        body: JSON.stringify(body),
+      });
+    } else {
+      res = await fetch('/api/openai', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+    }
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error?.message || `OpenAI 오류 (${res.status})`);
+    }
+    return res.json();
+  }
+
   // ─── 상태 ───────────────────────────────────────────────────────────────
   let _refImages = [];      // { data: base64, mimeType, dataUrl }
   let _imageAnalysis = null;
@@ -199,16 +255,7 @@ window.AiFill = (() => {
       ...images.map(img => ({ inlineData: { mimeType: img.mimeType, data: img.data } })),
     ];
 
-    const res = await fetch('/api/gemini', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ model: 'gemini-2.0-flash', contents: [{ parts }] }),
-    });
-    if (!res.ok) {
-      const err = await res.json();
-      throw new Error(err.error?.message || 'Gemini 분석 실패');
-    }
-    const data = await res.json();
+    const data = await _callGemini('gemini-2.0-flash', { contents: [{ parts }] });
     const text = data.candidates?.[0]?.content?.parts?.find(p => p.text)?.text || '';
     const match = text.match(/\{[\s\S]*\}/);
     if (!match) throw new Error('Gemini 응답에서 JSON을 찾을 수 없습니다. 응답: ' + text.slice(0, 200));
@@ -481,26 +528,15 @@ ${JSON.stringify(blockSchema, null, 2)}
 - 모델: 스키마에서 모델 필드가 "[한국인 타겟 고객 기반으로 반드시 작성]"인 블록은 반드시 한국인 모델을 구체적으로 묘사 (성별/연령대/외형/표정/포즈). 타겟 고객(${product.target || '일반 소비자'})의 전형적인 모습으로. "없음"이라고 이미 명시된 블록만 없음으로 작성
 - 같은 블록 타입이라도 각자 다른 메시지이므로 서로 다른 촬영 컨셉 적용`;
 
-    const res = await fetch('/api/openai', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'gpt-4o-mini',
-        messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: userPrompt },
-        ],
-        response_format: { type: 'json_object' },
-        temperature: 0.7,
-      }),
+    const data = await _callOpenAI({
+      model: 'gpt-4o-mini',
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: userPrompt },
+      ],
+      response_format: { type: 'json_object' },
+      temperature: 0.7,
     });
-
-    if (!res.ok) {
-      const err = await res.json();
-      throw new Error(err.error?.message || 'GPT 호출 실패');
-    }
-
-    const data = await res.json();
     return parseGPTResponse(JSON.parse(data.choices[0].message.content));
   }
 
@@ -731,7 +767,11 @@ ${JSON.stringify(blockSchema, null, 2)}
       <div class="ai-modal" style="width:600px">
         <div class="ai-modal-header">
           <span class="ai-modal-title">🎨 AI 이미지 생성</span>
-          <button class="ai-modal-close">✕</button>
+          <span class="ai-mini-progress" id="ai-mini-progress" style="display:none"></span>
+          <div style="display:flex;gap:4px;margin-left:auto">
+            <button class="ai-modal-minimize" id="ai-modal-minimize-btn" title="최소화">－</button>
+            <button class="ai-modal-close">✕</button>
+          </div>
         </div>
         <div class="ai-modal-body">
           ${_refImages.length ? `
@@ -756,6 +796,7 @@ ${JSON.stringify(blockSchema, null, 2)}
               <div class="ai-img-status" id="ai-img-status-${idx}"></div>
             </div>`).join('')}
         </div>
+        <div class="ai-gen-caution">생성 중 캔버스 작업은 가능하나, 생성 중인 슬롯의 블록을 삭제하면 해당 슬롯은 오류 처리됩니다.</div>
         <div class="ai-modal-footer">
           <span class="ai-gen-progress" id="ai-gen-progress" style="font-size:13px;color:#6b7280;margin-right:auto">0 / ${slots.length} 완료</span>
           <button class="ai-btn-secondary ai-modal-close-btn">닫기</button>
@@ -768,6 +809,12 @@ ${JSON.stringify(blockSchema, null, 2)}
     el.querySelector('.ai-modal-close').addEventListener('click', () => el.remove());
     el.querySelector('.ai-modal-close-btn').addEventListener('click', () => el.remove());
 
+    // 최소화 토글
+    el.querySelector('#ai-modal-minimize-btn').addEventListener('click', () => {
+      const isMin = el.classList.toggle('minimized');
+      el.querySelector('#ai-modal-minimize-btn').textContent = isMin ? '＋' : '－';
+    });
+
     // 개별 생성
     el.querySelectorAll('.ai-btn-gen-img').forEach(btn => {
       btn.addEventListener('click', () => onGenerateImage(btn, slots, el));
@@ -775,7 +822,8 @@ ${JSON.stringify(blockSchema, null, 2)}
 
     // 전체 생성 (순차)
     el.querySelector('#ai-btn-gen-all').addEventListener('click', async () => {
-      const allBtns = [...el.querySelectorAll('.ai-btn-gen-img')];
+      _minimizeImageModal(el, slots.length);
+      const allBtns = [...el.querySelectorAll('.ai-btn-gen-img:not([disabled])')];
       for (const btn of allBtns) {
         await onGenerateImage(btn, slots, el);
       }
@@ -938,14 +986,31 @@ ${JSON.stringify(blockSchema, null, 2)}
     }
   }
 
+  function _minimizeImageModal(overlay, total) {
+    if (!overlay.classList.contains('minimized')) {
+      overlay.classList.add('minimized');
+      overlay.querySelector('#ai-modal-minimize-btn').textContent = '＋';
+      const miniProgress = overlay.querySelector('#ai-mini-progress');
+      if (miniProgress) { miniProgress.textContent = `0 / ${total}`; miniProgress.style.display = ''; }
+    }
+  }
+
   function _updateGenProgress(modal, slots) {
     const progressEl = modal?.querySelector('#ai-gen-progress');
     if (!progressEl) return;
     const done = modal.querySelectorAll('.ai-img-status.done').length;
-    progressEl.textContent = `${done} / ${slots.length} 완료`;
+    const text = done === slots.length ? `✓ ${done} / ${slots.length} 완료` : `${done} / ${slots.length} 완료`;
+    progressEl.textContent = text;
+    const overlay = modal.closest('.ai-modal-overlay');
+    const miniProgress = overlay?.querySelector('#ai-mini-progress');
     if (done === slots.length) {
       progressEl.style.color = '#16a34a';
-      progressEl.textContent = `✓ ${done} / ${slots.length} 완료`;
+      if (miniProgress) miniProgress.textContent = `✓ ${done} / ${slots.length}`;
+      if (overlay?.classList.contains('minimized')) {
+        setTimeout(() => overlay.remove(), 1500);
+      }
+    } else {
+      if (miniProgress) miniProgress.textContent = `${done} / ${slots.length}`;
     }
   }
 
@@ -976,20 +1041,10 @@ Requirements:
       { text: fullPrompt },
     ];
 
-    const res = await fetch('/api/gemini', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'gemini-2.5-flash-image',
-        contents: [{ parts }],
-        generationConfig: { responseModalities: ['IMAGE', 'TEXT'] },
-      }),
+    const data = await _callGemini('gemini-2.5-flash-image', {
+      contents: [{ parts }],
+      generationConfig: { responseModalities: ['IMAGE', 'TEXT'] },
     });
-    if (!res.ok) {
-      const err = await res.json();
-      throw new Error(err.error?.message || 'Gemini 이미지 생성 실패');
-    }
-    const data = await res.json();
     const resParts = data.candidates?.[0]?.content?.parts || [];
     for (const part of resParts) {
       if (part.inlineData?.data) {
