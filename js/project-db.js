@@ -1,69 +1,42 @@
 /**
- * project-db.js — 멀티 프로젝트 IndexedDB 저장소
+ * project-db.js — Supabase 기반 프로젝트 저장소
+ * API 프록시: /api/supabase?action=...
  */
 
-const DB_NAME = 'ProductPageEditor';
-const DB_VERSION = 2;
-const PROJECTS_STORE = 'projects';
+async function _call(action, params = {}, body = null) {
+  const url = new URL('/api/supabase', location.origin);
+  url.searchParams.set('action', action);
+  Object.entries(params).forEach(([k, v]) => url.searchParams.set(k, v));
 
-let _db = null;
+  const options = {
+    method: body ? 'POST' : 'GET',
+    headers: body ? { 'Content-Type': 'application/json' } : {},
+    ...(body ? { body: JSON.stringify(body) } : {}),
+  };
 
-function openProjectDB() {
-  return new Promise((resolve, reject) => {
-    if (_db) { resolve(_db); return; }
-    const req = indexedDB.open(DB_NAME, DB_VERSION);
-    req.onupgradeneeded = (e) => {
-      const db = e.target.result;
-      // 구버전 단일 프로젝트 스토어 제거
-      if (db.objectStoreNames.contains('project')) {
-        db.deleteObjectStore('project');
-      }
-      if (!db.objectStoreNames.contains(PROJECTS_STORE)) {
-        const store = db.createObjectStore(PROJECTS_STORE, { keyPath: 'id' });
-        store.createIndex('savedAt', 'savedAt');
-      }
-    };
-    req.onsuccess = (e) => { _db = e.target.result; resolve(_db); };
-    req.onerror = (e) => { console.error('DB 오픈 실패:', req.error); reject(req.error); };
-    req.onblocked = () => { console.warn('DB 업그레이드 차단됨 — 다른 탭을 닫아주세요'); };
-  });
+  const res = await fetch(url.toString(), options);
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.error || `API 오류 (${res.status})`);
+  }
+  return res.json();
 }
 
 window.ProjectDB = {
   save(project) {
-    return openProjectDB().then(db => new Promise((resolve, reject) => {
-      const tx = db.transaction(PROJECTS_STORE, 'readwrite');
-      tx.objectStore(PROJECTS_STORE).put(project);
-      tx.oncomplete = resolve;
-      tx.onerror = () => reject(tx.error);
-    }));
+    return _call('save', {}, project);
   },
 
   get(id) {
-    return openProjectDB().then(db => new Promise((resolve, reject) => {
-      const tx = db.transaction(PROJECTS_STORE, 'readonly');
-      const req = tx.objectStore(PROJECTS_STORE).get(id);
-      req.onsuccess = () => resolve(req.result);
-      req.onerror = () => reject(req.error);
-    }));
+    return _call('get', { id });
   },
 
   getAll() {
-    return openProjectDB().then(db => new Promise((resolve, reject) => {
-      const tx = db.transaction(PROJECTS_STORE, 'readonly');
-      const req = tx.objectStore(PROJECTS_STORE).getAll();
-      req.onsuccess = () => resolve((req.result || []).sort((a, b) => b.savedAt - a.savedAt));
-      req.onerror = () => reject(req.error);
-    }));
+    return _call('getAll');
   },
 
   delete(id) {
-    return openProjectDB().then(db => new Promise((resolve, reject) => {
-      const tx = db.transaction(PROJECTS_STORE, 'readwrite');
-      tx.objectStore(PROJECTS_STORE).delete(id);
-      tx.oncomplete = resolve;
-      tx.onerror = () => reject(tx.error);
-    }));
+    return _call('delete', { id });
   },
 
   newId() {
