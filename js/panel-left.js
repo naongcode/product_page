@@ -61,7 +61,7 @@ function bindElementButtons() {
       reader.onload = e => resolve(e.target.result);
       reader.readAsDataURL(file);
     });
-    const src = await uploadImageToStorage(dataUrl, (window.currentProjectId || 'tmp') + '_' + Date.now());
+    const src = await uploadImageToStorage(dataUrl, Date.now());
     fabric.Image.fromURL(src, (img) => {
       const maxW = artW * 0.5;
       if (img.width > maxW) img.scaleToWidth(maxW);
@@ -73,7 +73,7 @@ function bindElementButtons() {
       canvas.setActiveObject(img);
       canvas.renderAll();
       CanvasManager.saveHistory();
-    }, { crossOrigin: 'anonymous' });
+    });
   });
 
   // 텍스트 추가

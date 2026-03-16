@@ -427,7 +427,11 @@
         const res = await fetch('/api/upload', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ dataUrl, filename: filenameBase }),
+          body: JSON.stringify({
+            dataUrl,
+            filename: filenameBase,
+            projectId: window.currentProjectId || 'shared',
+          }),
         });
         if (!res.ok) throw new Error('upload failed');
         const { url } = await res.json();

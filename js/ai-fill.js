@@ -1057,7 +1057,7 @@ Requirements:
   async function applyImageToPlaceholder(blockId, blockIndex, placeholderIndex, dataUrl) {
     const src = await uploadImageToStorage(
       dataUrl,
-      (window.currentProjectId || 'tmp') + '_' + blockId + '_' + blockIndex + '_' + placeholderIndex + '_' + Date.now()
+      blockId + '_' + blockIndex + '_' + placeholderIndex + '_' + Date.now()
     );
     const canvas = CanvasManager.getCanvas();
     // 플레이스홀더 또는 이미 적용된 이미지 모두 탐색
@@ -1106,7 +1106,7 @@ Requirements:
         canvas.renderAll();
         CanvasManager.saveHistory();
         resolve();
-      }, { crossOrigin: 'anonymous' });
+      });
     });
   }
 
