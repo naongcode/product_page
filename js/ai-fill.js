@@ -40,6 +40,30 @@ window.AiFill = (() => {
     });
   }
 
+  // API 전송용 압축 (긴 변 최대 1024px, JPEG 0.85) — Vercel 4.5MB 제한 대응
+  function _compressForAPI(imgObj) {
+    return new Promise(resolve => {
+      const img = new Image();
+      img.onload = () => {
+        const MAX = 1024;
+        const ratio = Math.min(1, MAX / Math.max(img.width, img.height));
+        const w = Math.round(img.width * ratio);
+        const h = Math.round(img.height * ratio);
+        const c = document.createElement('canvas');
+        c.width = w; c.height = h;
+        c.getContext('2d').drawImage(img, 0, 0, w, h);
+        const compressed = c.toDataURL('image/jpeg', 0.85);
+        resolve({ dataUrl: compressed, data: compressed.split(',')[1], mimeType: 'image/jpeg' });
+      };
+      img.onerror = () => resolve(imgObj);
+      img.src = imgObj.dataUrl;
+    });
+  }
+
+  async function _compressImagesForAPI(images) {
+    return (await Promise.all(images.map(_compressForAPI))).filter(Boolean);
+  }
+
   async function _saveResult() {
     const key = _storageKey();
     if (!key) return;
@@ -387,7 +411,7 @@ window.AiFill = (() => {
       if (_refImages.length) {
         loadingEl.querySelector('.ai-loading-msg').textContent = '참조 이미지 분석 중...';
         try {
-          _imageAnalysis = await analyzeProductImages(_refImages);
+          _imageAnalysis = await analyzeProductImages(await _compressImagesForAPI(_refImages));
         } catch (imgErr) {
           console.warn('Gemini 이미지 분석 실패, 건너뜀:', imgErr.message);
           _imageAnalysis = null;
@@ -902,7 +926,7 @@ ${JSON.stringify(blockSchema, null, 2)}
     statusEl.textContent = '생성 중...';
 
     try {
-      const dataUrl = await generateImageWithGemini(prompt, _refImages);
+      const dataUrl = await generateImageWithGemini(prompt, await _compressImagesForAPI(_refImages));
       await applyImageToPlaceholder(imgData.blockId, imgData.blockIndex, imgData.placeholderIndex, dataUrl);
       statusEl.className = 'ai-img-status done';
       statusEl.textContent = '✓ 캔버스에 적용됨';
