@@ -41,7 +41,7 @@ window.AiFill = (() => {
 
   async function _callOpenAI(body) {
     let res;
-    if (_isLocal) {
+    if (typeof CONFIG !== 'undefined' && CONFIG.OPENAI_API_KEY) {
       res = await fetch('https://api.openai.com/v1/chat/completions', {
         method: 'POST',
         headers: {
