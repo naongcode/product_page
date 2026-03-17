@@ -554,7 +554,7 @@ ${JSON.stringify(blockSchema, null, 2)}
       'b09-gallery-3col': { role: '갤러리 3열 — 제품 디테일 클로즈업 3컷, 각각 다른 각도/소재/기능 강조 (모델 없음)', imageSlots: 3, needsModel: false },
       'b10-text-center':  { role: '텍스트 중심 — 브랜드 스토리 또는 감성 문구', text: { title: '[작성]', body: '[작성]' } },
       'b11-caution':      { role: '주의사항', items: ['[작성]', '[작성]', '[작성]'] },
-      'b12-brand-banner': { role: '브랜드 배너', text: { name: '[작성]', slogan: '[작성]' } },
+      'b12-brand-banner': { role: '브랜드 배너', text: { name: '[영문 브랜드명 — 예: ROSYSHOW, JEJU PURE]', slogan: '[작성]' } },
       'b13-how-to-use':   { role: '사용 방법 3단계', items: [{ step:'01', title:'[작성]', desc:'[작성]' }, { step:'02', title:'[작성]', desc:'[작성]' }, { step:'03', title:'[작성]', desc:'[작성]' }] },
       'b14-review':       { role: '고객 후기', items: [{ stars:'⭐⭐⭐⭐⭐', text:'[작성]', name:'[작성]' }, { stars:'⭐⭐⭐⭐⭐', text:'[작성]', name:'[작성]' }, { stars:'⭐⭐⭐⭐⭐', text:'[작성]', name:'[작성]' }] },
       'b15-cta':          { role: '구매 유도 배너', text: { headline: '[작성]', sub: '[작성]' } },
@@ -575,6 +575,11 @@ ${JSON.stringify(blockSchema, null, 2)}
       'b32-ingredient':   { role: '재료/성분 그리드 — 메인 제품 + 핵심 원료 4가지 시각화', text: { title: '[작성]', mainLabel: '[작성]' }, labels: ['[작성]', '[작성]', '[작성]', '[작성]'], imageSlots: 5 },
       'b33-creator-story':{ role: '제작자/농부/대표 스토리 — 인물 사진과 진솔한 인용구로 신뢰 구축', text: { quote: '[작성]', name: '[작성]', role: '[직함/경력]' }, imageSlots: 1, needsModel: true },
       'b34-magazine':     { role: '매거진 스타일 비대칭 레이아웃 — 대형 이미지 + 감성 텍스트 + 서브 이미지', text: { title: '[작성]', desc: '[작성]', caption: '[작성]' }, imageSlots: 2 },
+      'b35-skincare-hero':  { role: '스킨케어 히어로 — 원형 이미지 + 브랜드/타이틀/서브텍스트', text: { brand: '[영문 브랜드명 — 예: JEJU PURE, LABOSEI]', title: '[작성]', subtitle: '[작성]' }, imageSlots: 1, needsModel: false },
+      'b36-dark-overlay-hero': { role: '다크 오버레이 히어로 — 어두운 배경 이미지 위 텍스트', text: { label: '[영문 카테고리 라벨 — 예: PREMIUM EDITION, NEW ARRIVAL]', title: '[작성]', desc: '[작성]' }, imageSlots: 1, needsModel: true },
+      'b37-bold-product-banner': { role: '볼드 제품 배너 — 강렬한 타이포 + 제품 이미지', text: { brand: '[영문 브랜드명 — 예: IRONFORGE, STEELCRAFT]', title: '[작성]', tagline: '[작성]' }, imageSlots: 1, needsModel: false },
+      'b38-cosmetic-hero':  { role: '코스메틱 히어로 — 그라디언트 배경 + 모델/제품 이미지', text: { label: '[영문 카테고리 라벨 — 예: Color Cosmetic, LIP COLLECTION]', title: '[작성]', subtitle: '[작성]' }, imageSlots: 1, needsModel: true },
+      'b39-minimal-hero':   { role: '미니멀 히어로 — 심플한 배경 + 제품/브랜드', text: { label: '[영문 카테고리 라벨 — 예: TRADITIONAL CERAMIC CLASS, LIFESTYLE]', title: '[작성]', subtitle: '[작성]' }, imageSlots: 1, needsModel: false },
     };
 
     const modelField = (needsModel) => needsModel
@@ -675,7 +680,9 @@ ${JSON.stringify(blockSchema, null, 2)}
   }
 
   // ─── 이미지 생성 모달 (독립) ─────────────────────────────────────────────
-  const IMAGE_BLOCKS = new Set(['b02-img-left', 'b03-img-right', 'b06-full-image', 'b08-gallery-2col', 'b09-gallery-3col']);
+  const IMAGE_BLOCKS = new Set(['b02-img-left', 'b03-img-right', 'b06-full-image', 'b08-gallery-2col', 'b09-gallery-3col',
+    'b24-split-screen', 'b29-img-overlay', 'b31-staggered', 'b33-creator-story', 'b34-magazine',
+    'b35-skincare-hero', 'b36-dark-overlay-hero', 'b37-bold-product-banner', 'b38-cosmetic-hero']);
 
   // 슬롯 타입별 구조화 기본 프롬프트 (나노페이지 형식: 톤/조명/배경/구도/모델/소품/감성)
   const SLOT_STRUCTURED_DEFAULTS = {
@@ -719,6 +726,38 @@ ${JSON.stringify(blockSchema, null, 2)}
 소품: 없음
 감성: 제품 품질과 디테일에 집중, 구매 전 꼼꼼히 살펴보는 느낌의 상세 촬영`,
 
+    'b35-skincare-hero': `톤: 청결하고 깨끗한 스킨케어 톤, 흰색·연한 파스텔 배경
+조명: 부드러운 자연광 또는 디퓨저 조명, 반사 없이 균일하게
+배경: 흰색 또는 아이보리 미니멀 배경
+구도: 제품 정면 클로즈업, 원형 프레임 안에 맞는 비율
+모델: 없음
+소품: 없음
+감성: 피부과학적 신뢰감, 순수하고 깨끗한 스킨케어 이미지`,
+
+    'b36-dark-overlay-hero': `톤: 어둡고 감성적인 다크 무드, 딥블루·차콜·블랙 계열
+조명: 스팟라이트 또는 림라이트, 극적인 명암 대비
+배경: 어두운 무지 배경 또는 질감 있는 다크 배경
+구도: 타겟 고객의 라이프스타일 전신 또는 3/4 앵글
+모델: 한국인 타겟 고객, 자신감 있는 포즈와 표정
+소품: 제품과 어울리는 세련된 소품
+감성: 프리미엄·럭셔리·고급스러운 브랜드 감성`,
+
+    'b37-bold-product-banner': `톤: 강렬하고 임팩트 있는 하이컨트라스트 톤
+조명: 스튜디오 강조 조명, 제품 실루엣이 선명하게
+배경: 단색 또는 그라디언트 배경 (브랜드 컬러와 조화)
+구도: 제품 단독 클로즈업, 강렬한 앵글 또는 정면
+모델: 없음
+소품: 없음
+감성: 강렬한 브랜드 아이덴티티, 제품 자신감이 느껴지는 파워풀한 이미지`,
+
+    'b38-cosmetic-hero': `톤: 부드럽고 로맨틱한 파스텔 핑크 또는 로즈 톤
+조명: 소프트 링라이트, 피부 보정이 자연스러운 뷰티 조명
+배경: 파스텔 핑크·코랄·크림 배경, 코스메틱 무드
+구도: 모델 얼굴 클로즈업 또는 반신, 메이크업이 잘 보이는 각도
+모델: 한국인 여성 20-30대, 깔끔한 메이크업, 자연스러운 미소
+소품: 립스틱 또는 쿠션 등 제품 소품
+감성: 럭셔리 뷰티 잡지 화보 느낌, 발색과 촉촉함이 느껴지는 뷰티 이미지`,
+
   };
 
   // 구조화 프롬프트에서 특정 필드 값을 교체하는 유틸
@@ -727,12 +766,19 @@ ${JSON.stringify(blockSchema, null, 2)}
     return text.replace(regex, `$1 ${value}`);
   }
 
+  // 블록별 이미지 슬롯 수 (기본 1)
+  const IMAGE_SLOT_COUNT = {
+    'b08-gallery-2col': 2, 'b09-gallery-3col': 3,
+    'b20-comparison': 2, 'b27-ugc-grid': 5, 'b31-staggered': 2,
+    'b32-ingredient': 5, 'b34-magazine': 2,
+  };
+
   function buildImageSlots() {
     const slots = [];
     const gptImages = _gptResult?.images || [];
     BlockManager.blocks.forEach((block, idx) => {
       if (!IMAGE_BLOCKS.has(block.id)) return;
-      const count = block.id === 'b08-gallery-2col' ? 2 : block.id === 'b09-gallery-3col' ? 3 : 1;
+      const count = IMAGE_SLOT_COUNT[block.id] || 1;
       for (let pi = 0; pi < count; pi++) {
         // GPT 생성 프롬프트 우선, 없으면 기본값
         const gptEntry = gptImages.find(
@@ -1055,10 +1101,13 @@ Requirements:
   }
 
   async function applyImageToPlaceholder(blockId, blockIndex, placeholderIndex, dataUrl) {
-    const src = await uploadImageToStorage(
+    // Supabase URL은 CORS 문제로 fabric.Image.fromURL에서 width=0이 될 수 있으므로
+    // 캔버스 렌더링에는 dataUrl을 직접 사용하고, storage 업로드는 병렬로 처리
+    uploadImageToStorage(
       dataUrl,
       blockId + '_' + blockIndex + '_' + placeholderIndex + '_' + Date.now()
-    );
+    ).catch(() => {}); // fire-and-forget (캔버스에는 dataUrl 그대로 사용)
+
     const canvas = CanvasManager.getCanvas();
     // 플레이스홀더 또는 이미 적용된 이미지 모두 탐색
     const placeholder = canvas.getObjects().find(
@@ -1075,8 +1124,8 @@ Requirements:
     if (!placeholder) throw new Error('플레이스홀더를 찾을 수 없습니다.');
 
     return new Promise((resolve, reject) => {
-      fabric.Image.fromURL(src, img => {
-        if (!img) { reject(new Error('이미지 로드 실패')); return; }
+      fabric.Image.fromURL(dataUrl, img => {
+        if (!img || img.width === 0) { reject(new Error('이미지 로드 실패')); return; }
 
         // 이미 적용된 이미지면 저장된 원본 크기 사용, 플레이스홀더면 rect 크기 사용
         const pw = placeholder._placeholderWidth || placeholder.width;

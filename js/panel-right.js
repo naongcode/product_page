@@ -428,12 +428,18 @@ function bindPropInputs() {
 
   // 플레이스홀더 → 이미지 업로드
   document.getElementById('btn-upload-placeholder').addEventListener('click', () => {
+    // 버튼 클릭 시점에는 포커스가 아직 있으므로 getActiveObject()가 유효
+    const obj = canvas.getActiveObject();
+    if (obj && obj._isPlaceholder) CanvasManager.setPendingPlaceholder(obj);
     document.getElementById('placeholder-upload').click();
   });
   document.getElementById('placeholder-upload').addEventListener('change', function () {
     const file = this.files[0];
     if (!file) return;
-    const placeholder = canvas.getActiveObject();
+    // getActiveObject()는 파일 다이얼로그가 포커스를 가져가면 null 반환하므로
+    // canvas.js dblclick 핸들러에서 미리 저장해둔 참조를 사용
+    const placeholder = CanvasManager.getPendingPlaceholder() || canvas.getActiveObject();
+    CanvasManager.clearPendingPlaceholder();
     if (!placeholder || !placeholder._isPlaceholder) return;
 
     const reader = new FileReader();

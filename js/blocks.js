@@ -42,7 +42,12 @@ window.BlockLibrary = [
   { id: 'b31-staggered',     name: '엇갈린 레이아웃', desc: '이미지+텍스트 좌우 교차 2세트' },
   { id: 'b32-ingredient',    name: '재료/성분 그리드', desc: '중앙 메인 + 주변 서브 재료 4개' },
   { id: 'b33-creator-story', name: '제작자 스토리',  desc: '인물 사진 + 추천 인용구 + 이름/직함' },
-  { id: 'b34-magazine',      name: '매거진 레이아웃', desc: '비대칭 그리드 — 대형 이미지 + 텍스트' },
+  { id: 'b34-magazine',         name: '매거진 레이아웃',         desc: '비대칭 그리드 — 대형 이미지 + 텍스트' },
+  { id: 'b35-skincare-hero',    name: '스킨케어 히어로',         desc: '크림 베이지 배경 · 중앙 제품 이미지 · 세리프 제품명' },
+  { id: 'b36-dark-overlay-hero',name: '다크 이미지 텍스트 오버레이', desc: '풀블리드 다크 사진 위 텍스트 직접 오버레이' },
+  { id: 'b37-bold-product-banner', name: '볼드 제품 배너',      desc: '강렬한 컬러 배경 · 좌측 제품명 · 우측 이미지' },
+  { id: 'b38-cosmetic-hero',    name: '코스메틱 그라디언트 히어로', desc: '소프트 핑크 배경 · 배지 · 해시태그 · 모델 이미지' },
+  { id: 'b39-minimal-hero',     name: '미니멀 에디토리얼 히어로', desc: '순백 배경 · 얇은 라인 · 세리프 대형 제목 · 여백 극대화' },
 ];
 
 // ===== 블록 생성 함수 =====
@@ -56,16 +61,136 @@ const BlockBuilders = {
   'b01-main-banner': (yOffset, theme, content) => {
     const c = theme?.colors || { bg: '#1a1a1a', text: '#ffffff', subtext: '#aaaaaa', accent: '#ffffff' };
     const f = theme?.fonts || { heading: 'Nanum Square', body: 'Noto Sans KR' };
-    const title = content?.title || '상품명을 입력하세요';
+    const hw = theme?.headingWeight || '900';
+    const title    = content?.title    || '상품명을 입력하세요';
     const subtitle = content?.subtitle || '핵심 특징을 한 줄로 설명하세요';
-    const bgColor = c.hero || c.bg;
+    const layout   = content?.layout   || 'center';   // 'center' | 'split' | 'minimal' | 'left'
+
+    const bgColor   = c.hero || c.bg;
     const isLightBg = _isLightColor(bgColor);
-    const titleColor = isLightBg ? (_isLightColor(c.text) ? '#111111' : c.text) : '#ffffff';
-    const subColor = isLightBg ? (_isLightColor(c.subtext) ? '#444444' : c.subtext) : 'rgba(255,255,255,0.72)';
-    const dividerColor = isLightBg ? c.accent : (c.accent2 || '#ffffff');
-    const titleLines = title.split('\n').length;
-    const titleH = Math.ceil(titleLines * 90 * 1.2);
-    const dividerY = yOffset + 232 + titleH + 36;
+    const titleColor = isLightBg ? (_isLightColor(c.text)    ? '#111111' : c.text)    : '#ffffff';
+    const subColor   = isLightBg ? (_isLightColor(c.subtext) ? '#555555' : c.subtext) : 'rgba(255,255,255,0.72)';
+    const accentColor = isLightBg ? c.accent : (c.accent2 || '#ffffff');
+
+    // ── split: 좌텍스트 우이미지 (스킨케어·식품 감성형) ──────────────────
+    if (layout === 'split') {
+      const h = 780;
+      const textAreaW = 580;
+      const imgX = textAreaW;
+      const textX = BLOCK_PADDING;
+      const textW = textAreaW - BLOCK_PADDING - 40;
+      const labelY = yOffset + 180;
+      const titleY = labelY + 52;
+      const divY   = titleY + Math.ceil(title.split('\n').length * 68 * 1.3) + 24;
+      const subY   = divY + 20;
+      return {
+        height: h,
+        objects: [
+          mkRect(0, yOffset, ARTBOARD_W, h, bgColor, 'left', '_isHero'),
+          mkPlaceholder(imgX, yOffset, ARTBOARD_W - imgX, h, '이미지 영역\n더블클릭하여 업로드', 0),
+          // 브랜드 라벨
+          mkText(content?.label || '', textX, labelY, {
+            fontSize: 22, fontFamily: f.body, fontWeight: '400', charSpacing: 200,
+            fill: subColor, textAlign: 'left', originX: 'left', _isHeroText: true, width: textW,
+            _contentKey: 'label',
+          }),
+          // 제품명
+          mkText(title, textX, titleY, {
+            fontSize: 68, fontFamily: f.heading, fontWeight: hw, lineHeight: 1.3,
+            fill: titleColor, textAlign: 'left', originX: 'left', _isHeading: true, _isHeroText: true, width: textW,
+            _contentKey: 'title',
+          }),
+          // 구분선
+          mkRect(textX, divY, 48, 2, accentColor, 'left', '_isHeroDivider'),
+          // 부제목
+          mkText(subtitle, textX, subY, {
+            fontSize: 26, fontFamily: f.body, fontWeight: '400', lineHeight: 1.6,
+            fill: subColor, textAlign: 'left', originX: 'left', _isHeroText: true, width: textW,
+            _contentKey: 'subtitle',
+          }),
+        ],
+      };
+    }
+
+    // ── minimal: 화이트 미니멀 (라이프스타일·공방) ──────────────────────
+    if (layout === 'minimal') {
+      const h = 760;
+      const cx = ARTBOARD_W / 2;
+      return {
+        height: h,
+        objects: [
+          mkRect(0, yOffset, ARTBOARD_W, h, bgColor, 'left', '_isHero'),
+          // 얇은 상단 라인
+          mkRect(cx - 60, yOffset + 120, 120, 1, accentColor, 'left', '_isHeroDivider'),
+          // 소제목 라벨
+          mkText(content?.label || '', cx, yOffset + 140, {
+            fontSize: 20, fontFamily: f.body, fontWeight: '400', charSpacing: 240,
+            fill: subColor, textAlign: 'center', originX: 'center', _isHeroText: true,
+            _contentKey: 'label',
+          }),
+          // 메인 타이틀 — 크고 얇게
+          mkText(title, cx, yOffset + 280, {
+            fontSize: 82, fontFamily: f.heading, fontWeight: hw, lineHeight: 1.2,
+            fill: titleColor, textAlign: 'center', originX: 'center', _isHeading: true, _isHeroText: true, width: 960,
+            _contentKey: 'title',
+          }),
+          // 얇은 하단 라인
+          mkRect(cx - 30, yOffset + 560, 60, 1, accentColor, 'left', '_isHeroDivider'),
+          // 부제목
+          mkText(subtitle, cx, yOffset + 590, {
+            fontSize: 26, fontFamily: f.body, fontWeight: '300', lineHeight: 1.6,
+            fill: subColor, textAlign: 'center', originX: 'center', _isHeroText: true, width: 800,
+            _contentKey: 'subtitle',
+          }),
+        ],
+      };
+    }
+
+    // ── left: 좌측 정렬 텍스트 (코스메틱·뷰티) ──────────────────────────
+    if (layout === 'left') {
+      const h = 720;
+      const textX = BLOCK_PADDING;
+      const textW  = 680;
+      const decorFill = isLightBg ? 'rgba(0,0,0,0.04)' : 'rgba(255,255,255,0.06)';
+      return {
+        height: h,
+        objects: [
+          mkGradientRect(0, yOffset, ARTBOARD_W, h, bgColor, _darkenHex(bgColor, 24), '_isGradientHero'),
+          // 배경 원형 장식 (우측)
+          new fabric.Circle({
+            left: Math.round(ARTBOARD_W * 0.78), top: yOffset - Math.round(h * 0.18),
+            radius: Math.round(h * 0.58),
+            fill: decorFill, selectable: false, evented: false, hoverCursor: 'default',
+            stroke: 'transparent', strokeWidth: 0,
+          }),
+          // 배지/라벨
+          mkText(content?.label || '', textX, yOffset + 180, {
+            fontSize: 22, fontFamily: f.body, fontWeight: '400', charSpacing: 180,
+            fill: subColor, textAlign: 'left', originX: 'left', _isHeroText: true,
+            _contentKey: 'label',
+          }),
+          // 메인 타이틀
+          mkText(title, textX, yOffset + 220, {
+            fontSize: 84, fontFamily: f.heading, fontWeight: hw, lineHeight: 1.2,
+            fill: titleColor, textAlign: 'left', originX: 'left', _isHeading: true, _isHeroText: true, width: textW,
+            _contentKey: 'title',
+          }),
+          // 구분선
+          mkRect(textX, yOffset + 490, 56, 3, accentColor, 'left', '_isHeroDivider'),
+          // 부제목
+          mkText(subtitle, textX, yOffset + 516, {
+            fontSize: 28, fontFamily: f.body, fontWeight: '400', lineHeight: 1.5,
+            fill: subColor, textAlign: 'left', originX: 'left', _isHeroText: true, width: textW,
+            _contentKey: 'subtitle',
+          }),
+        ],
+      };
+    }
+
+    // ── center: 기본 중앙 정렬 (default) ─────────────────────────────────
+    const titleFontSize = parseInt(hw) <= 700 ? 78 : 90;
+    const titleH  = Math.ceil(title.split('\n').length * titleFontSize * 1.25);
+    const dividerY  = yOffset + 232 + titleH + 36;
     const subtitleY = dividerY + 3 + 26;
     const h = Math.max(680, (subtitleY - yOffset) + Math.ceil(38 * 1.2) + 150);
     const decorAlpha = isLightBg ? 0.05 : 0.08;
@@ -87,17 +212,17 @@ const BlockBuilders = {
           hoverCursor: 'default', stroke: 'transparent', strokeWidth: 0,
         }),
         mkText(title, ARTBOARD_W / 2, yOffset + 232, {
-          fontSize: 90, fontFamily: f.heading, fontWeight: '900', lineHeight: 1.2,
+          fontSize: titleFontSize, fontFamily: f.heading, fontWeight: hw, lineHeight: 1.25,
           fill: titleColor, textAlign: 'center', originX: 'center', _isHeading: true, _isHeroText: true, width: 960,
           _contentKey: 'title',
         }),
-        mkRect(ARTBOARD_W / 2 - 30, dividerY, 60, 3, dividerColor, 'center', '_isHeroDivider'),
+        mkRect(ARTBOARD_W / 2 - 30, dividerY, 60, 3, accentColor, 'center', '_isHeroDivider'),
         mkText(subtitle, ARTBOARD_W / 2, subtitleY, {
-          fontSize: 38, fontFamily: f.body, fontWeight: '400', lineHeight: 1.2,
+          fontSize: 34, fontFamily: f.body, fontWeight: '400', lineHeight: 1.3,
           fill: subColor, textAlign: 'center', originX: 'center', _isHeroText: true, width: 960,
           _contentKey: 'subtitle',
         }),
-      ]
+      ],
     };
   },
 
@@ -105,25 +230,27 @@ const BlockBuilders = {
     const h = 720;
     const c = theme?.colors || { bg: '#ffffff', text: '#111111', subtext: '#6b7280', accent: '#222222' };
     const f = theme?.fonts || { heading: 'Nanum Square', body: 'Noto Sans KR' };
+    const hw = theme?.headingWeight || '800';
     const imgW = ARTBOARD_W / 2;
-    const colCx = imgW + (ARTBOARD_W - imgW) / 2; // 텍스트 영역 중심
+    const textX = imgW + BLOCK_PADDING;          // 좌측 여백 포함 텍스트 시작 X
+    const textW = ARTBOARD_W / 2 - BLOCK_PADDING - 40;  // 우측 40px 여백
     const title = content?.title || '특징 제목';
     const desc = content?.desc || '상품의 특징을 자세히 설명하세요.\n여러 줄로 작성하면 더욱 효과적입니다.\n구체적인 수치나 장점을 강조해보세요.';
     return {
       height: h,
       objects: [
-        mkRect(0, yOffset, ARTBOARD_W, h, c.bg, 'left', '_isBg'),
-        mkRect(imgW, yOffset, ARTBOARD_W / 2, h, c.surface || c.bg, 'left', '_isSurface'),
+        mkGradientRect(0, yOffset, ARTBOARD_W, h, _lightenHex(c.bg, 24), _darkenHex(c.bg, 16), '_isGradientBg'),
+        mkGradientRect(imgW, yOffset, ARTBOARD_W / 2, h, _lightenHex(c.surface || c.bg, 10), _darkenHex(c.surface || c.bg, 20), '_isGradientSurface'),
         mkPlaceholder(0, yOffset, imgW, h, '이미지 영역\n더블클릭하여 업로드', 0),
-        mkRect(colCx - 20, yOffset + 170, 40, 4, c.accent, 'left', '_isAccent'),
-        mkText(title, colCx, yOffset + 190, {
-          fontSize: 52, fontFamily: f.heading, fontWeight: '800', lineHeight: 1.2,
-          fill: c.text, textAlign: 'center', originX: 'center', _isHeading: true, width: 480,
+        mkRect(textX, yOffset + 120, 44, 2, c.accent, 'left', '_isAccent'),
+        mkText(title, textX, yOffset + 140, {
+          fontSize: 58, fontFamily: f.heading, fontWeight: hw, lineHeight: 1.2,
+          fill: c.text, textAlign: 'left', originX: 'left', _isHeading: true, width: textW,
           _contentKey: 'title',
         }),
-        mkText(desc, colCx, yOffset + 356, {
-          fontSize: 28, fontFamily: f.body, fontWeight: '400',
-          fill: c.subtext, lineHeight: 1.7, textAlign: 'center', originX: 'center', width: 480,
+        mkText(desc, textX, yOffset + 310, {
+          fontSize: 32, fontFamily: f.body, fontWeight: '300',
+          fill: c.subtext, lineHeight: 1.9, textAlign: 'left', originX: 'left', width: textW,
           _contentKey: 'desc',
         }),
       ]
@@ -134,25 +261,27 @@ const BlockBuilders = {
     const h = 720;
     const c = theme?.colors || { bg: '#f8f9fa', text: '#111111', subtext: '#6b7280', accent: '#222222' };
     const f = theme?.fonts || { heading: 'Nanum Square', body: 'Noto Sans KR' };
+    const hw = theme?.headingWeight || '800';
     const imgX = ARTBOARD_W / 2;
-    const colCx = imgX / 2; // 텍스트 영역 중심
+    const textX = BLOCK_PADDING;                          // 텍스트 시작 X
+    const textW = ARTBOARD_W / 2 - BLOCK_PADDING - 40;   // 우측 40px 여백 (이미지 경계 전)
     const title = content?.title || '특징 제목';
     const desc = content?.desc || '상품의 특징을 자세히 설명하세요.\n여러 줄로 작성하면 더욱 효과적입니다.\n구체적인 수치나 장점을 강조해보세요.';
     return {
       height: h,
       objects: [
-        mkRect(0, yOffset, ARTBOARD_W, h, c.surface || c.bg, 'left', '_isSurface'),
-        mkRect(0, yOffset, ARTBOARD_W / 2, h, c.bg, 'left', '_isBg'),
+        mkGradientRect(0, yOffset, ARTBOARD_W, h, _darkenHex(c.surface || c.bg, 18), _lightenHex(c.surface || c.bg, 12), '_isGradientSurface'),
+        mkGradientRect(0, yOffset, ARTBOARD_W / 2, h, _darkenHex(c.bg, 10), _lightenHex(c.bg, 28), '_isGradientBg'),
         mkPlaceholder(imgX, yOffset, ARTBOARD_W / 2, h, '이미지 영역\n더블클릭하여 업로드', 0),
-        mkRect(colCx - 20, yOffset + 170, 40, 4, c.accent, 'left', '_isAccent'),
-        mkText(title, colCx, yOffset + 190, {
-          fontSize: 52, fontFamily: f.heading, fontWeight: '800', lineHeight: 1.2,
-          fill: c.text, textAlign: 'center', originX: 'center', _isHeading: true, width: 480,
+        mkRect(textX, yOffset + 110, 44, 2, c.accent, 'left', '_isAccent'),
+        mkText(title, textX, yOffset + 130, {
+          fontSize: 68, fontFamily: f.heading, fontWeight: hw, lineHeight: 1.2,
+          fill: c.text, textAlign: 'left', originX: 'left', _isHeading: true, width: textW,
           _contentKey: 'title',
         }),
-        mkText(desc, colCx, yOffset + 356, {
-          fontSize: 28, fontFamily: f.body, fontWeight: '400',
-          fill: c.subtext, lineHeight: 1.7, textAlign: 'center', originX: 'center', width: 480,
+        mkText(desc, textX, yOffset + 330, {
+          fontSize: 31, fontFamily: f.body, fontWeight: '300',
+          fill: c.subtext, lineHeight: 1.9, textAlign: 'left', originX: 'left', width: textW,
           _contentKey: 'desc',
         }),
       ]
@@ -160,7 +289,7 @@ const BlockBuilders = {
   },
 
   'b04-feature-2col': (yOffset, theme, content) => {
-    const h = 560;
+    const h = 620;
     const c = theme?.colors || { bg: '#ffffff', text: '#111111', subtext: '#6b7280', accent: '#222222' };
     const f = theme?.fonts || { heading: 'Nanum Square', body: 'Noto Sans KR' };
     const colW = (CONTENT_W - 40) / 2;
@@ -174,19 +303,19 @@ const BlockBuilders = {
     const txtW = Math.floor(colW * 0.88);
     const txtOpts = (isHead) => ({
       textAlign: 'center', originX: 'center', width: txtW,
-      ...(isHead ? { fontSize: 42, fontFamily: f.heading, fontWeight: '800', lineHeight: 1.2, fill: c.text, _isHeading: true }
-                 : { fontSize: 26, fontFamily: f.body, fill: c.subtext, lineHeight: 1.7 })
+      ...(isHead ? { fontSize: 50, fontFamily: f.heading, fontWeight: '800', lineHeight: 1.2, fill: c.text, _isHeading: true }
+                 : { fontSize: 30, fontFamily: f.body, fill: c.subtext, lineHeight: 1.7 })
     });
     return {
       height: h,
       objects: [
-        mkRect(0, yOffset, ARTBOARD_W, h, c.bg, 'left', '_isBg'),
-        mkCircle(cx1, yOffset + 182, 30, c.accent, '_isAccent'),
-        mkText(items[0]?.title || defaults[0].title, cx1, yOffset + 250, { ...txtOpts(true),  _contentKey: 'items[0].title' }),
-        mkText(items[0]?.desc  || defaults[0].desc,  cx1, yOffset + 320, { ...txtOpts(false), _contentKey: 'items[0].desc'  }),
-        mkCircle(cx2, yOffset + 182, 30, c.accent2 || c.accent, '_isAccent2'),
-        mkText(items[1]?.title || defaults[1].title, cx2, yOffset + 250, { ...txtOpts(true),  _contentKey: 'items[1].title' }),
-        mkText(items[1]?.desc  || defaults[1].desc,  cx2, yOffset + 320, { ...txtOpts(false), _contentKey: 'items[1].desc'  }),
+        mkGradientRect(0, yOffset, ARTBOARD_W, h, _lightenHex(c.bg, 20), _darkenHex(c.bg, 12), '_isGradientBg'),
+        mkCircle(cx1, yOffset + 190, 30, c.accent, '_isAccent'),
+        mkText(items[0]?.title || defaults[0].title, cx1, yOffset + 258, { ...txtOpts(true),  _contentKey: 'items[0].title' }),
+        mkText(items[0]?.desc  || defaults[0].desc,  cx1, yOffset + 410, { ...txtOpts(false), _contentKey: 'items[0].desc'  }),
+        mkCircle(cx2, yOffset + 190, 30, c.accent2 || c.accent, '_isAccent2'),
+        mkText(items[1]?.title || defaults[1].title, cx2, yOffset + 258, { ...txtOpts(true),  _contentKey: 'items[1].title' }),
+        mkText(items[1]?.desc  || defaults[1].desc,  cx2, yOffset + 410, { ...txtOpts(false), _contentKey: 'items[1].desc'  }),
       ]
     };
   },
@@ -210,7 +339,7 @@ const BlockBuilders = {
     const circleAccents = [c.accent, c.accent2 || c.accent, c.accent];
     const circleFlags3 = ['_isAccent', '_isAccent2', '_isAccent'];
     const featureCardShadow = new fabric.Shadow({ color: 'rgba(0,0,0,0.09)', blur: 24, offsetX: 0, offsetY: 6 });
-    const objs = [mkRect(0, yOffset, ARTBOARD_W, h, c.surface || c.bg, 'left', '_isSurface')];
+    const objs = [mkGradientRect(0, yOffset, ARTBOARD_W, h, _lightenHex(c.surface || c.bg, 26), _darkenHex(c.surface || c.bg, 10), '_isGradientSurface')];
     cxs.forEach((cx, i) => {
       const cardX = BLOCK_PADDING + i * (colW + 20);
       objs.push(new fabric.Rect({
@@ -221,12 +350,12 @@ const BlockBuilders = {
       objs.push(
         mkCircle(cx, yOffset + 180, 28, circleAccents[i], circleFlags3[i]),
         mkText(items[i]?.title || defaults[i].title, cx, yOffset + 242, {
-          fontSize: 36, fontFamily: f.heading, fontWeight: '800', lineHeight: 1.2,
+          fontSize: 42, fontFamily: f.body, fontWeight: '700', lineHeight: 1.2,
           fill: c.text, textAlign: 'center', originX: 'center', _isHeading: true, width: Math.floor(colW * 0.84),
           _contentKey: `items[${i}].title`,
         }),
-        mkText(items[i]?.desc || defaults[i].desc, cx, yOffset + 304, {
-          fontSize: 25, fontFamily: f.body, fill: c.subtext, lineHeight: 1.7,
+        mkText(items[i]?.desc || defaults[i].desc, cx, yOffset + 312, {
+          fontSize: 28, fontFamily: f.body, fill: c.subtext, lineHeight: 1.7,
           textAlign: 'center', originX: 'center', width: Math.floor(colW * 0.84),
           _contentKey: `items[${i}].desc`,
         })
@@ -317,17 +446,29 @@ const BlockBuilders = {
   },
 
   'b10-text-center': (yOffset, theme, content) => {
-    const h = 580;
+    const h = 700;
     const c = theme?.colors || { bg: '#ffffff', text: '#111111', subtext: '#6b7280', accent: '#222222' };
     const f = theme?.fonts || { heading: 'Nanum Square', body: 'Noto Sans KR' };
+    const hw = theme?.headingWeight || '800';
     const title = content?.title || '섹션 제목';
     const body = content?.body || '여기에 본문 내용을 입력하세요. 상품의 스토리나 브랜드 철학,\n사용 방법 등을 자세히 설명할 수 있습니다.';
     const bgIsLight = _isLightColor(c.bg);
     const decorFill = bgIsLight ? 'rgba(0,0,0,0.038)' : 'rgba(255,255,255,0.05)';
+    const titleFontSize = parseInt(hw) <= 700 ? 64 : 72;
     return {
       height: h,
       objects: [
-        mkRect(0, yOffset, ARTBOARD_W, h, c.bg, 'left', '_isBg'),
+        (() => {
+          const grad = new fabric.Gradient({
+            type: 'linear', gradientUnits: 'pixels',
+            coords: { x1: ARTBOARD_W, y1: 0, x2: 0, y2: h },
+            colorStops: [
+              { offset: 0, color: _lightenHex(c.bg, 30) },
+              { offset: 1, color: _darkenHex(c.bg, 18) },
+            ],
+          });
+          return new fabric.Rect({ left: 0, top: yOffset, width: ARTBOARD_W, height: h, fill: grad, selectable: true, stroke: 'transparent', strokeWidth: 0, lockMovementX: true, lockMovementY: true, lockScalingX: true, lockScalingY: true, lockRotation: true, hasControls: false, _isGradientBg: true });
+        })(),
         new fabric.IText('\u201C', {
           left: ARTBOARD_W / 2, top: yOffset + h / 2 - 60,
           fontSize: 420, fontFamily: f.heading, fontWeight: '900',
@@ -336,14 +477,14 @@ const BlockBuilders = {
           _isDecor: true,
         }),
         mkText(title, ARTBOARD_W / 2, yOffset + 166, {
-          fontSize: 62, fontFamily: f.heading, fontWeight: '800', lineHeight: 1.2,
+          fontSize: titleFontSize, fontFamily: f.heading, fontWeight: hw, lineHeight: 1.3,
           fill: c.text, textAlign: 'center', originX: 'center', _isHeading: true, width: 880,
           _contentKey: 'title',
         }),
-        mkRect(ARTBOARD_W / 2 - 30, yOffset + 284, 60, 4, c.accent, 'center', '_isAccent'),
-        mkText(body, ARTBOARD_W / 2, yOffset + 314, {
-          fontSize: 28, fontFamily: f.body, fontWeight: '400',
-          fill: c.subtext, textAlign: 'center', originX: 'center', lineHeight: 1.8, width: 880,
+        mkRect(ARTBOARD_W / 2 - 30, yOffset + 380, 60, 3, c.accent, 'center', '_isAccent'),
+        mkText(body, ARTBOARD_W / 2, yOffset + 416, {
+          fontSize: 30, fontFamily: f.body, fontWeight: '400',
+          fill: c.subtext, textAlign: 'center', originX: 'center', lineHeight: 1.85, width: 860,
           _contentKey: 'body',
         }),
       ]
@@ -359,7 +500,17 @@ const BlockBuilders = {
     const itemsStart = topPad + 74; // 74 = 제목 높이(~50) + 간격(24)
     const h = itemsStart + Math.max(0, items.length - 1) * rowH + 36 + topPad;
     const objs = [
-      mkRect(0, yOffset, ARTBOARD_W, h, c.bg, 'left', '_isBg'),
+      (() => {
+        const grad = new fabric.Gradient({
+          type: 'linear', gradientUnits: 'pixels',
+          coords: { x1: 0, y1: 0, x2: ARTBOARD_W, y2: 0 },
+          colorStops: [
+            { offset: 0, color: _darkenHex(c.bg, 14) },
+            { offset: 1, color: _lightenHex(c.bg, 22) },
+          ],
+        });
+        return new fabric.Rect({ left: 0, top: yOffset, width: ARTBOARD_W, height: h, fill: grad, selectable: true, stroke: 'transparent', strokeWidth: 0, lockMovementX: true, lockMovementY: true, lockScalingX: true, lockScalingY: true, lockRotation: true, hasControls: false, _isGradientBg: true });
+      })(),
       mkText('⚠ 주의사항', BLOCK_PADDING, yOffset + topPad, {
         fontSize: 42, fontFamily: f.heading, fontWeight: '800', lineHeight: 1.2,
         fill: c.accent, _isHeading: true,
@@ -368,7 +519,7 @@ const BlockBuilders = {
     items.forEach((txt, i) => {
       objs.push(
         mkText('•  ' + txt, BLOCK_PADDING, yOffset + itemsStart + i * rowH, {
-          fontSize: 26, fontFamily: f.body, fill: c.subtext, lineHeight: 1.4, width: CONTENT_W,
+          fontSize: 29, fontFamily: f.body, fill: c.subtext, lineHeight: 1.4, width: CONTENT_W,
           _contentKey: `items[${i}]`,
         })
       );
@@ -380,6 +531,7 @@ const BlockBuilders = {
     const h = 440;
     const c = theme?.colors || { bg: '#111111', text: '#ffffff', subtext: 'rgba(255,255,255,0.6)', accent: '#ffffff' };
     const f = theme?.fonts || { heading: 'Nanum Square', body: 'Noto Sans KR' };
+    const hw = theme?.headingWeight || '900';
     const name = content?.name || '브랜드명';
     const slogan = content?.slogan || '브랜드 슬로건을 여기에 입력하세요';
     const heroBg = c.hero || c.bg;
@@ -387,6 +539,7 @@ const BlockBuilders = {
     const nameColor = isLightHero ? (_isLightColor(c.text) ? '#111111' : c.text) : '#ffffff';
     const sloganColor = isLightHero ? (_isLightColor(c.subtext) ? '#444444' : c.subtext) : 'rgba(255,255,255,0.65)';
     const brandDecorFill = isLightHero ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.07)';
+    const nameFontSize = parseInt(hw) <= 700 ? 62 : 74;
     return {
       height: h,
       objects: [
@@ -398,12 +551,12 @@ const BlockBuilders = {
           hoverCursor: 'default', stroke: 'transparent', strokeWidth: 0,
         }),
         mkText(name, ARTBOARD_W / 2, yOffset + 130, {
-          fontSize: 74, fontFamily: f.heading, fontWeight: '900', lineHeight: 1.2,
+          fontSize: nameFontSize, fontFamily: f.heading, fontWeight: hw, lineHeight: 1.3,
           fill: nameColor, textAlign: 'center', originX: 'center', _isHeading: true, _isHeroText: true,
           _contentKey: 'name',
         }),
         mkText(slogan, ARTBOARD_W / 2, yOffset + 276, {
-          fontSize: 32, fontFamily: f.body, fontWeight: '300', lineHeight: 1.2,
+          fontSize: 30, fontFamily: f.body, fontWeight: '300', lineHeight: 1.4,
           fill: sloganColor, textAlign: 'center', originX: 'center', _isHeroText: true,
           _contentKey: 'slogan',
         }),
@@ -413,7 +566,7 @@ const BlockBuilders = {
 
   // ─── b13: 사용 방법 (3단계 번호형) ───────────────────────────────────────
   'b13-how-to-use': (yOffset, theme, content) => {
-    const h = 600;
+    const h = 750;
     const c = theme?.colors || { bg: '#f8f9fa', text: '#111111', subtext: '#6b7280', accent: '#222222' };
     const f = theme?.fonts || { heading: 'Nanum Square', body: 'Noto Sans KR' };
     const colW = (CONTENT_W - 40) / 3;
@@ -424,7 +577,7 @@ const BlockBuilders = {
       { step: '03', title: '3단계', desc: '마지막 단계를\n간단하게 설명하세요.' },
     ];
     const items = content?.items || defaults;
-    const circleY = yOffset + 262;
+    const circleY = yOffset + 320;
     const circleR = 38;
     const stepAccents = [c.accent, c.accent2 || c.accent, c.accent];
     const stepFlags = ['_isAccent', '_isAccent2', '_isAccent'];
@@ -432,7 +585,7 @@ const BlockBuilders = {
     const cx0 = xs[0] + colW / 2;
     const cx2 = xs[2] + colW / 2;
     const objs = [
-      mkRect(0, yOffset, ARTBOARD_W, h, c.surface || c.bg, 'left', '_isSurface'),
+      mkGradientRect(0, yOffset, ARTBOARD_W, h, _darkenHex(c.surface || c.bg, 12), _lightenHex(c.surface || c.bg, 18), '_isGradientSurface'),
       mkText('사용 방법', ARTBOARD_W / 2, yOffset + 100, {
         fontSize: 44, fontFamily: f.heading, fontWeight: '800',
         fill: c.text, textAlign: 'center', originX: 'center', _isHeading: true,
@@ -451,12 +604,12 @@ const BlockBuilders = {
           fill: inCircleColor, textAlign: 'center', originX: 'center', originY: 'center',
           _contentKey: `items[${i}].step`,
         }),
-        mkText(item.title, cx, yOffset + 344, {
+        mkText(item.title, cx, yOffset + 414, {
           fontSize: 34, fontFamily: f.heading, fontWeight: '800', lineHeight: 1.2,
           fill: c.text, textAlign: 'center', originX: 'center', _isHeading: true, width: Math.floor(colW * 0.84),
           _contentKey: `items[${i}].title`,
         }),
-        mkText(item.desc, cx, yOffset + 412, {
+        mkText(item.desc, cx, yOffset + 490, {
           fontSize: 26, fontFamily: f.body, fill: c.subtext, lineHeight: 1.7,
           textAlign: 'center', originX: 'center', width: Math.floor(colW * 0.84),
           _contentKey: `items[${i}].desc`,
@@ -484,7 +637,7 @@ const BlockBuilders = {
     const items = content?.items || defaults;
     const cardShadow = new fabric.Shadow({ color: 'rgba(0,0,0,0.10)', blur: 28, offsetX: 0, offsetY: 6 });
     const objs = [
-      mkRect(0, yOffset, ARTBOARD_W, h, c.bg, 'left', '_isBg'),
+      mkGradientRect(0, yOffset, ARTBOARD_W, h, c.bg, _darkenHex(c.bg, 16), '_isGradientBg'),
       mkText('고객 후기', ARTBOARD_W / 2, yOffset + 61, {
         fontSize: 44, fontFamily: f.heading, fontWeight: '800',
         fill: c.text, textAlign: 'center', originX: 'center', _isHeading: true,
@@ -545,7 +698,7 @@ const BlockBuilders = {
     const objs = [
       mkRect(0, yOffset, ARTBOARD_W, h, c.bg, 'left', '_isBg'),
       mkText(sectionTitle, ARTBOARD_W / 2, yOffset + (headerH - 46) / 2, {
-        fontSize: 44, fontFamily: f.heading, fontWeight: '800', lineHeight: 1.2,
+        fontSize: 44, fontFamily: f.body, fontWeight: '700', lineHeight: 1.2,
         fill: c.text, textAlign: 'center', originX: 'center', _isHeading: true,
         _contentKey: 'title',
       }),
@@ -575,6 +728,7 @@ const BlockBuilders = {
     const h = 480;
     const c = theme?.colors || { bg: '#111111', text: '#ffffff', subtext: '#aaaaaa', accent: '#ffffff' };
     const f = theme?.fonts || { heading: 'Nanum Square', body: 'Noto Sans KR' };
+    const hw = theme?.headingWeight || '900';
     const headline = content?.headline || '지금 바로 경험해보세요';
     const sub = content?.sub || '첫 구매 고객을 위한 특별 혜택이 준비되어 있습니다';
     const heroBg = c.hero || c.bg;
@@ -583,6 +737,7 @@ const BlockBuilders = {
     const subColor = isLight ? (_isLightColor(c.subtext) ? '#444444' : c.subtext) : 'rgba(255,255,255,0.65)';
     const lineColor = isLight ? c.accent : (c.accent2 || '#ffffff');
     const ctaDecorFill = isLight ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.07)';
+    const headFontSize = parseInt(hw) <= 700 ? 64 : 74;
     return {
       height: h,
       objects: [
@@ -599,14 +754,14 @@ const BlockBuilders = {
           fill: ctaDecorFill, selectable: false, evented: false,
           hoverCursor: 'default', stroke: 'transparent', strokeWidth: 0,
         }),
-        mkRect(ARTBOARD_W / 2 - 30, yOffset + 92, 60, 4, lineColor, 'center', '_isHeroDivider'),
+        mkRect(ARTBOARD_W / 2 - 30, yOffset + 92, 60, 3, lineColor, 'center', '_isHeroDivider'),
         mkText(headline, ARTBOARD_W / 2, yOffset + 130, {
-          fontSize: 64, fontFamily: f.heading, fontWeight: '900', lineHeight: 1.2,
+          fontSize: headFontSize, fontFamily: f.heading, fontWeight: hw, lineHeight: 1.3,
           fill: headColor, textAlign: 'center', originX: 'center', _isHeading: true, _isHeroText: true, width: 960,
           _contentKey: 'headline',
         }),
-        mkText(sub, ARTBOARD_W / 2, yOffset + 318, {
-          fontSize: 30, fontFamily: f.body, fontWeight: '400', lineHeight: 1.4,
+        mkText(sub, ARTBOARD_W / 2, yOffset + 330, {
+          fontSize: 34, fontFamily: f.body, fontWeight: '300', lineHeight: 1.6,
           fill: subColor, textAlign: 'center', originX: 'center', _isHeroText: true, width: 960,
           _contentKey: 'sub',
         }),
@@ -1361,6 +1516,354 @@ const BlockBuilders = {
     };
   },
 
+  // ─── b35: 스킨케어 히어로 (SES SAKNOON CLEANSER 스타일) ─────────────────
+  // 크림 베이지 배경 · 중앙 제품 이미지 · 브랜드 라벨 · 세리프 제품명
+  'b35-skincare-hero': (yOffset, theme, content) => {
+    const h = 1060;
+    const c = theme?.colors || {};
+    const f = theme?.fonts || { heading: 'Nanum Myeongjo', body: 'Noto Serif KR' };
+    const hw = theme?.headingWeight || '700';
+    const bgColor   = c.hero || c.bg || '#EDE4D6';
+    const isLight   = _isLightColor(bgColor);
+    const titleColor = isLight ? (c.text || '#2C1A0E') : '#ffffff';
+    const subColor   = isLight ? (c.subtext || '#6B4E34') : 'rgba(255,255,255,0.72)';
+    const accentColor = isLight ? (c.accent || '#8B7355') : '#ffffff';
+    const brand    = content?.brand    || 'BRAND NAME';
+    const title    = content?.title    || '제품명을 입력하세요';
+    const subtitle = content?.subtitle || '핵심 성분 · 특징 · 인증';
+    const cx = ARTBOARD_W / 2;
+    const imgSize = 380;
+    const circleCenter = yOffset + h * 0.48;   // 원 중심 Y
+    const imgY = circleCenter - imgSize / 2;   // 이미지 중심을 원 중심에 정렬
+    const titleY = imgY + imgSize + 52;
+    const divY = titleY + Math.ceil(title.split('\n').length * 68 * 1.3) + 20;
+    const subY = divY + 22;
+    // 배경 대형 원형 장식
+    const decorFill = isLight ? 'rgba(0,0,0,0.04)' : 'rgba(255,255,255,0.05)';
+    return {
+      height: h,
+      objects: [
+        mkRect(0, yOffset, ARTBOARD_W, h, bgColor, 'left', '_isHero'),
+        new fabric.Circle({
+          left: cx, top: circleCenter,
+          radius: h * 0.38, originX: 'center', originY: 'center',
+          fill: decorFill, selectable: false, evented: false,
+          hoverCursor: 'default', stroke: 'transparent', strokeWidth: 0, _isDecor: true,
+        }),
+        // 브랜드 라벨 (레터스페이싱, 상단 고정)
+        mkText(brand, cx, yOffset + 64, {
+          fontSize: 24, fontFamily: f.body, fontWeight: '400', charSpacing: 360,
+          fill: subColor, textAlign: 'center', originX: 'center', _isHeroText: true,
+          _contentKey: 'brand',
+        }),
+        // 얇은 상단 구분선
+        mkRect(cx - 28, yOffset + 100, 56, 1, accentColor, 'left', '_isHeroDivider'),
+        // 제품 이미지 (정사각형, 원 중심 정렬)
+        ...mkPlaceholder(cx - imgSize / 2, imgY, imgSize, imgSize, '제품 이미지\n더블클릭하여 업로드', 0),
+        // 제품명 (세리프, 중앙)
+        mkText(title, cx, titleY, {
+          fontSize: 68, fontFamily: f.heading, fontWeight: hw, lineHeight: 1.3,
+          fill: titleColor, textAlign: 'center', originX: 'center',
+          _isHeading: true, _isHeroText: true, width: 860,
+          _contentKey: 'title',
+        }),
+        // 하단 구분선
+        mkRect(cx - 24, divY, 48, 1, accentColor, 'left', '_isHeroDivider'),
+        // 부제목
+        mkText(subtitle, cx, subY, {
+          fontSize: 28, fontFamily: f.body, fontWeight: '400', lineHeight: 1.7, charSpacing: 60,
+          fill: subColor, textAlign: 'center', originX: 'center', _isHeroText: true, width: 760,
+          _contentKey: 'subtitle',
+        }),
+      ],
+    };
+  },
+
+  // ─── b36: 다크 이미지 텍스트 오버레이 히어로 (CERAMIC FRYING PAN 스타일) ──
+  // 풀블리드 다크 사진 · 상단 그라디언트 오버레이 · 텍스트 직접 오버레이
+  'b36-dark-overlay-hero': (yOffset, theme, content) => {
+    const h = 840;
+    const f = theme?.fonts || { heading: 'Nanum Square', body: 'Noto Sans KR' };
+    const hw = theme?.headingWeight || '800';
+    const label = content?.label || 'PREMIUM';
+    const title = content?.title || '제품명을 입력하세요';
+    const desc  = content?.desc  || '제품의 핵심 특징을 간결하게 설명하세요.';
+    const textX = BLOCK_PADDING;
+    const textW = 700;
+    return {
+      height: h,
+      objects: [
+        // 다크 이미지 플레이스홀더
+        ...mkPlaceholder(0, yOffset, ARTBOARD_W, h, '다크 컨셉 이미지\n더블클릭하여 업로드', 0),
+        // 상단 → 중간 다크 그라디언트 오버레이 (텍스트 가독성)
+        mkGradientRect(0, yOffset, ARTBOARD_W, h * 0.68, 'rgba(0,0,0,0.62)', 'rgba(0,0,0,0)', '_isDecor'),
+        // 브랜드/카테고리 라벨 (Cormorant Garamond 이탤릭 — 럭셔리 영문 세리프)
+        mkText(label, textX, yOffset + 110, {
+          fontSize: 22, fontFamily: 'Cormorant Garamond', fontWeight: '400', fontStyle: 'italic', charSpacing: 280,
+          fill: 'rgba(255,255,255,0.75)', textAlign: 'left', originX: 'left',
+          _contentKey: 'label',
+        }),
+        // 얇은 구분선
+        mkRect(textX, yOffset + 148, 56, 1, 'rgba(255,255,255,0.45)', 'left'),
+        // 대형 제품명 (Noto Serif KR, 화이트)
+        mkText(title, textX, yOffset + 170, {
+          fontSize: 86, fontFamily: f.heading, fontWeight: hw, lineHeight: 1.15,
+          fill: '#ffffff', textAlign: 'left', originX: 'left',
+          _isHeading: true, _isHeroText: true, width: textW,
+          _contentKey: 'title',
+        }),
+        // 설명 텍스트 (얇은 Noto Sans, 화이트)
+        mkText(desc, textX, yOffset + 430, {
+          fontSize: 28, fontFamily: f.body, fontWeight: '300', lineHeight: 1.75,
+          fill: 'rgba(255,255,255,0.80)', textAlign: 'left', originX: 'left', width: textW,
+          _contentKey: 'desc',
+        }),
+      ],
+    };
+  },
+
+  // ─── b37: 볼드 제품 배너 (ORIGINAL MINT 스타일) ───────────────────────────
+  // 솔리드 강렬한 배경 · 좌측 브랜드+제품명 · 우측 제품 이미지
+  'b37-bold-product-banner': (yOffset, theme, content) => {
+    const h = 700;
+    const c = theme?.colors || {};
+    const f = theme?.fonts || { heading: 'Nanum Square', body: 'Noto Sans KR' };
+    const hw = theme?.headingWeight || '900';
+    const bgColor   = c.hero || '#CC2200';
+    const isLight   = _isLightColor(bgColor);
+    const whiteText = isLight ? (c.text || '#111111') : '#ffffff';
+    const dimText   = isLight ? (c.subtext || '#444444') : 'rgba(255,255,255,0.72)';
+    const accentCol = isLight ? c.accent : 'rgba(255,255,255,0.30)';
+    const brand    = content?.brand    || 'BRAND';
+    const title    = content?.title    || '제품명';
+    const tagline  = content?.tagline  || 'The Great Balance of Natural Extracts';
+    const specs    = content?.specs    || 'Natural Extracts  ·  Safe To Use';
+    const textX  = BLOCK_PADDING;
+    const textW  = ARTBOARD_W * 0.52 - BLOCK_PADDING;
+    const imgX   = Math.round(ARTBOARD_W * 0.54);
+    const imgW   = ARTBOARD_W - imgX;
+    return {
+      height: h,
+      objects: [
+        mkRect(0, yOffset, ARTBOARD_W, h, bgColor, 'left', '_isHero'),
+        // 우측 이미지 영역
+        ...mkPlaceholder(imgX, yOffset, imgW, h, '제품 이미지\n더블클릭하여 업로드', 0),
+        // 브랜드명 (레터스페이싱)
+        mkText(brand, textX, yOffset + 130, {
+          fontSize: 24, fontFamily: 'Bebas Neue', fontWeight: '400', charSpacing: 360,
+          fill: dimText, textAlign: 'left', originX: 'left', _isHeroText: true,
+          _contentKey: 'brand',
+        }),
+        // 얇은 구분선
+        mkRect(textX, yOffset + 170, 48, 2, accentCol, 'left'),
+        // 대형 제품명 (Bebas Neue — 임팩트 디스플레이)
+        mkText(title, textX, yOffset + 188, {
+          fontSize: 110, fontFamily: 'Bebas Neue', fontWeight: '400', lineHeight: 1.0,
+          fill: whiteText, textAlign: 'left', originX: 'left',
+          _isHeading: true, _isHeroText: true, width: textW,
+          _contentKey: 'title',
+        }),
+        // 태그라인
+        mkText(tagline, textX, yOffset + 452, {
+          fontSize: 27, fontFamily: f.body, fontWeight: '300', lineHeight: 1.7,
+          fill: dimText, textAlign: 'left', originX: 'left', width: textW,
+          _contentKey: 'tagline',
+        }),
+        // 스펙/성분 텍스트
+        mkText(specs, textX, yOffset + 568, {
+          fontSize: 24, fontFamily: f.body, fontWeight: '300', charSpacing: 40,
+          fill: dimText, textAlign: 'left', originX: 'left', width: textW,
+          _contentKey: 'specs',
+        }),
+      ],
+    };
+  },
+
+  // ─── b38: 코스메틱 그라디언트 히어로 (BLISS TINT 스타일) ─────────────────
+  // 소프트 핑크 배경 · 좌측 대형 제목+배지 · 우측 모델/제품 이미지
+  'b38-cosmetic-hero': (yOffset, theme, content) => {
+    const h = 800;
+    const c = theme?.colors || {};
+    const f = theme?.fonts || { heading: 'Nanum Square', body: 'Noto Sans KR' };
+    const hw = theme?.headingWeight || '800';
+    const bgColor   = c.hero || '#FFADC2';
+    const isLight   = _isLightColor(bgColor);
+    const titleColor = isLight ? (c.text || '#2D0015') : '#ffffff';
+    const subColor   = isLight ? (c.subtext || '#7A2045') : 'rgba(255,255,255,0.78)';
+    const badgeBg    = isLight ? (c.accent || '#E83265') : 'rgba(255,255,255,0.22)';
+    const badgeText  = isLight ? '#ffffff' : '#ffffff';
+    const label    = content?.label    || 'Color Cosmetic';
+    const title    = content?.title    || '제품명을 입력하세요';
+    const subtitle = content?.subtitle || '제품 타입 · 주요 기능';
+    const badge1   = content?.badge1   || 'SPF40 PA++';
+    const badge2   = content?.badge2   || 'Vegan';
+    const hashtags = content?.hashtags || ['#데일리립', '#촉촉립', '#롱래스팅'];
+    const textX = BLOCK_PADDING;
+    const textW = Math.round(ARTBOARD_W * 0.56) - BLOCK_PADDING;
+    const imgX  = Math.round(ARTBOARD_W * 0.58);
+    const imgW  = ARTBOARD_W - imgX;
+    // 배경 소프트 글로우 (밝은 원형 오버레이)
+    const glowFill = isLight ? 'rgba(255,255,255,0.25)' : 'rgba(255,255,255,0.10)';
+    return {
+      height: h,
+      objects: [
+        // 그라디언트 배경 (좌상→우하 대각선, 연한 핑크→진한 핑크)
+        (() => {
+          const lightColor = _lightenHex(bgColor, 50);
+          const darkColor  = _darkenHex(bgColor, 28);
+          const grad = new fabric.Gradient({
+            type: 'linear',
+            gradientUnits: 'pixels',
+            coords: { x1: 0, y1: 0, x2: ARTBOARD_W, y2: h },
+            colorStops: [
+              { offset: 0,    color: lightColor },
+              { offset: 0.55, color: bgColor },
+              { offset: 1,    color: darkColor },
+            ],
+          });
+          return new fabric.Rect({
+            left: 0, top: yOffset, width: ARTBOARD_W, height: h,
+            fill: grad, selectable: true, stroke: 'transparent', strokeWidth: 0,
+            lockMovementX: true, lockMovementY: true, lockScalingX: true, lockScalingY: true,
+            lockRotation: true, hasControls: false, _isGradientHero: true,
+          });
+        })(),
+        // 소프트 원형 글로우 장식
+        new fabric.Circle({
+          left: Math.round(ARTBOARD_W * 0.60), top: yOffset + h * 0.38,
+          radius: h * 0.50, originX: 'center', originY: 'center',
+          fill: glowFill, selectable: false, evented: false,
+          hoverCursor: 'default', stroke: 'transparent', strokeWidth: 0, _isDecor: true,
+        }),
+        // 우측 모델/제품 이미지
+        ...mkPlaceholder(imgX, yOffset, imgW, h, '모델/제품 이미지\n더블클릭하여 업로드', 0),
+        // 카테고리 라벨 (Cormorant Garamond — 우아한 영문 세리프)
+        mkText(label, textX, yOffset + 148, {
+          fontSize: 22, fontFamily: 'Cormorant Garamond', fontWeight: '400', charSpacing: 320,
+          fontStyle: 'italic',
+          fill: subColor, textAlign: 'left', originX: 'left', _isHeroText: true,
+          _contentKey: 'label',
+        }),
+        // 얇은 구분선
+        mkRect(textX, yOffset + 182, 40, 1, subColor, 'left'),
+        // 대형 제품명 (Noto Serif KR 얇은 세리프 → 고급 감성)
+        mkText(title, textX, yOffset + 200, {
+          fontSize: 78, fontFamily: f.heading, fontWeight: hw, lineHeight: 1.25,
+          fill: titleColor, textAlign: 'left', originX: 'left',
+          _isHeading: true, _isHeroText: true, width: textW,
+          _contentKey: 'title',
+        }),
+        // 제품 부제 (얇은 Noto Sans)
+        mkText(subtitle, textX, yOffset + 450, {
+          fontSize: 30, fontFamily: f.body, fontWeight: '300', lineHeight: 1.6,
+          charSpacing: 60,
+          fill: subColor, textAlign: 'left', originX: 'left', width: textW,
+          _contentKey: 'subtitle',
+        }),
+        // 배지 1
+        new fabric.Rect({
+          left: textX, top: yOffset + 520, width: 172, height: 48,
+          rx: 24, ry: 24, fill: badgeBg,
+          selectable: true, stroke: 'transparent', strokeWidth: 0,
+        }),
+        mkText(badge1, textX + 86, yOffset + 520 + 24, {
+          fontSize: 21, fontFamily: f.body, fontWeight: '400',
+          fill: badgeText, textAlign: 'center', originX: 'center', originY: 'center',
+          charSpacing: 40,
+          _contentKey: 'badge1',
+        }),
+        // 배지 2
+        new fabric.Rect({
+          left: textX + 184, top: yOffset + 520, width: 120, height: 48,
+          rx: 24, ry: 24, fill: badgeBg,
+          selectable: true, stroke: 'transparent', strokeWidth: 0,
+        }),
+        mkText(badge2, textX + 244, yOffset + 520 + 24, {
+          fontSize: 21, fontFamily: f.body, fontWeight: '400',
+          fill: badgeText, textAlign: 'center', originX: 'center', originY: 'center',
+          charSpacing: 40,
+          _contentKey: 'badge2',
+        }),
+        // 해시태그 필 배지들
+        ...(() => {
+          const pillH = 40;
+          const pillY = yOffset + 610;
+          const pillPadX = 22;
+          const gap = 12;
+          const pillColor = isLight ? 'rgba(0,0,0,0.10)' : 'rgba(255,255,255,0.18)';
+          const pillTextColor = isLight ? (c.text || '#2D0015') : '#ffffff';
+          const items = [];
+          let px = textX;
+          hashtags.forEach((tag) => {
+            const charW = 19;
+            const pillW = tag.length * charW + pillPadX * 2;
+            items.push(new fabric.Rect({
+              left: px, top: pillY, width: pillW, height: pillH,
+              rx: pillH / 2, ry: pillH / 2, fill: pillColor,
+              selectable: false, evented: false, stroke: 'transparent', strokeWidth: 0, _isDecor: true,
+            }));
+            items.push(mkText(tag, px + pillW / 2, pillY + pillH / 2, {
+              fontSize: 19, fontFamily: f.body, fontWeight: '400',
+              fill: pillTextColor, textAlign: 'center', originX: 'center', originY: 'center',
+              _isDecor: true,
+            }));
+            px += pillW + gap;
+          });
+          return items;
+        })(),
+      ],
+    };
+  },
+
+  // ─── b39: 미니멀 에디토리얼 히어로 (TOUCH OF KOREA 스타일) ──────────────
+  // 순백 배경 · 얇은 라인 · 세리프 대형 제목 · 여백 극대화
+  'b39-minimal-hero': (yOffset, theme, content) => {
+    const h = 740;
+    const c = theme?.colors || {};
+    const f = theme?.fonts || { heading: 'Nanum Myeongjo', body: 'Noto Sans KR' };
+    const hw = theme?.headingWeight || '700';
+    const bgColor    = c.bg    || '#FFFFFF';
+    const textColor  = c.text  || '#222222';
+    const subColor   = c.subtext  || '#666666';
+    const accentColor = c.accent || '#5A5550';
+    const cx = ARTBOARD_W / 2;
+    const label    = content?.label    || 'LIFESTYLE CLASS';
+    const title    = content?.title    || '브랜드 이름';
+    const subtitle = content?.subtitle || '브랜드 슬로건 또는 카테고리 소개 문구';
+    const titleFontSize = 88;
+    const titleLines = title.split('\n').length;
+    const titleEndY = yOffset + 340 + Math.ceil(titleLines * titleFontSize * 1.2);
+    return {
+      height: h,
+      objects: [
+        mkRect(0, yOffset, ARTBOARD_W, h, bgColor, 'left', '_isBg'),
+        // 상단 얇은 가로선
+        mkRect(cx - 80, yOffset + 100, 160, 1, accentColor, 'left', '_isAccent'),
+        // 카테고리 라벨 (레터스페이싱, 소문자 금지 — 영문 대문자)
+        mkText(label, cx, yOffset + 118, {
+          fontSize: 17, fontFamily: f.body, fontWeight: '400', charSpacing: 360,
+          fill: subColor, textAlign: 'center', originX: 'center', _isMutedText: true,
+          _contentKey: 'label',
+        }),
+        // 대형 브랜드/제품명 (세리프, 얇게)
+        mkText(title, cx, yOffset + 260, {
+          fontSize: titleFontSize, fontFamily: f.heading, fontWeight: hw, lineHeight: 1.2,
+          fill: textColor, textAlign: 'center', originX: 'center',
+          _isHeading: true, width: 1000,
+          _contentKey: 'title',
+        }),
+        // 하단 얇은 가로선
+        mkRect(cx - 56, titleEndY + 30, 112, 1, accentColor, 'left', '_isAccent'),
+        // 서브타이틀
+        mkText(subtitle, cx, titleEndY + 52, {
+          fontSize: 24, fontFamily: f.body, fontWeight: '300', lineHeight: 1.7,
+          fill: subColor, textAlign: 'center', originX: 'center', width: 720,
+          _contentKey: 'subtitle',
+        }),
+      ],
+    };
+  },
+
   // ─── b18: 인용구 밴드 ────────────────────────────────────────────────────
   'b18-quote-band': (yOffset, theme, content) => {
     const h = 300;
@@ -1406,6 +1909,16 @@ function _darkenHex(hex, amount = 30) {
   const r = Math.max(0, parseInt(raw.slice(0, 2), 16) - amount);
   const g = Math.max(0, parseInt(raw.slice(2, 4), 16) - amount);
   const b = Math.max(0, parseInt(raw.slice(4, 6), 16) - amount);
+  return '#' + [r, g, b].map(v => v.toString(16).padStart(2, '0')).join('');
+}
+
+// 헥스 색상을 밝게 (amount: 0~255, 흰색 방향으로)
+function _lightenHex(hex, amount = 30) {
+  const raw = (hex || '#ffffff').replace('#', '');
+  if (raw.length < 6) return hex;
+  const r = Math.min(255, parseInt(raw.slice(0, 2), 16) + amount);
+  const g = Math.min(255, parseInt(raw.slice(2, 4), 16) + amount);
+  const b = Math.min(255, parseInt(raw.slice(4, 6), 16) + amount);
   return '#' + [r, g, b].map(v => v.toString(16).padStart(2, '0')).join('');
 }
 

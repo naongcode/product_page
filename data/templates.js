@@ -709,6 +709,7 @@ window.Templates = [
   },
 
   // ─── 8. 미니멀형 (뷰티/패션) ─────────────────────────────────────────────
+
   {
     id: 'minimal',
     name: '미니멀형',
@@ -800,4 +801,396 @@ window.Templates = [
       },
     },
   },
+
+  // ─── 9. 쿡웨어/주방형 (공통) ──────────────────────────────────────────────
+  {
+    id: 'cookware',
+    name: '쿡웨어/주방형',
+    desc: '다크 프리미엄 톤으로 주방용품·가전을 고급스럽게 연출하는 구성',
+    category: '공통',
+    defaultTheme: 'premium-dark',
+    blocks: [
+      'b36-dark-overlay-hero',
+      'b10-text-center',
+      'b03-img-right',
+      'b02-img-left',
+      'b04-feature-2col',
+      'b05-feature-3col',
+      'b07-spec-table',
+      'b08-gallery-2col',
+      'b14-review',
+      'b15-cta',
+      'b11-caution',
+      'b12-brand-banner',
+    ],
+    content: {
+      'b36-dark-overlay-hero': {
+        label: 'CRAFTLINE COOKWARE',
+        title: 'CERAMIC\nFRYING PAN',
+        desc: '무독성 세라믹 코팅 · 인덕션 전 기종 호환 · 5년 코팅 보증',
+      },
+      'b12-brand-banner': {
+        name: 'CRAFTLINE',
+        slogan: '주방을 예술로 만드는 도구',
+      },
+      'b10-text-center': {
+        title: '불 위에서 완성되는\n세라믹의 품격',
+        body: '고열에도 변형 없는 세라믹 코팅과\n주물 수준의 열 균일성으로\n셰프의 손맛을 집에서 재현합니다.',
+      },
+      'b03-img-right': {
+        title: '무독성 세라믹 코팅',
+        desc: '화학 코팅 없이 미네랄 기반 세라믹만 사용.\nPFOA·PTFE 완전 무함유 인증.\n고온에서도 유해물질이 발생하지 않습니다.',
+      },
+      'b02-img-left': {
+        title: '주조 알루미늄 바디',
+        desc: '3mm 두께 주조 알루미늄이\n열을 팬 전체에 균일하게 전달합니다.\n가스·인덕션·하이라이트 전 기종 호환.',
+      },
+      'b04-feature-2col': {
+        items: [
+          { title: '무독성 세라믹', desc: 'PFOA·PTFE 무함유\n유럽 안전 인증 통과' },
+          { title: '전 기종 호환', desc: '가스·인덕션·하이라이트\n오븐까지 모두 사용 가능' },
+        ],
+      },
+      'b05-feature-3col': {
+        items: [
+          { title: '열 균일성', desc: '팬 전체 온도 편차\n±5°C 이내 유지' },
+          { title: '내스크래치', desc: '금속 조리도구 사용 가능\n5년 코팅 품질 보증' },
+          { title: '쉬운 세척', desc: '코팅 특유의 이형성으로\n물만 헹궈도 깨끗' },
+        ],
+      },
+      'b07-spec-table': {
+        title: '제품 사양',
+        rows: [
+          ['제품명', 'CRAFTLINE 세라믹 후라이팬 28cm'],
+          ['소재', '주조 알루미늄 + 미네랄 세라믹 코팅'],
+          ['호환 열원', '가스, 인덕션, 하이라이트, 오븐(250°C 이하)'],
+          ['무게', '870g'],
+          ['코팅 인증', 'PFOA·PTFE FREE / 유럽 LFGB 인증'],
+        ],
+      },
+      'b14-review': {
+        items: [
+          { stars: '★★★★★', text: '계란 프라이가 기름 없이 돼요.\n세척도 너무 쉽고 정말 만족합니다.', name: '요리 좋아하는 주부' },
+          { stars: '★★★★★', text: '인덕션 쓰는데 열이 너무 균일하게 올라와요.\n볶음 요리가 완전히 달라졌어요.', name: '인덕션 유저' },
+          { stars: '★★★★☆', text: '묵직한 느낌이 고급스러워요.\n6개월째 코팅 멀쩡합니다.', name: '재구매 고객' },
+        ],
+      },
+      'b15-cta': {
+        headline: '요리가 달라지는 경험',
+        sub: '전국 무료 배송 · 5년 코팅 보증 · 30일 체험 반품',
+      },
+      'b11-caution': {
+        items: [
+          '금속 조리도구 사용 후에는 중성 세제로 세척하세요',
+          '오븐 사용 시 250°C 이하로 제한하세요',
+          '급격한 온도 변화(고온 후 냉수)는 코팅 수명을 단축합니다',
+        ],
+      },
+    },
+  },
+
+  // ─── 10. 스킨케어형 (뷰티/패션) ───────────────────────────────────────────
+  {
+    id: 'skincare',
+    name: '스킨케어형',
+    desc: '성분과 감성을 함께 담은 클렌저·세럼·크림 특화 구성',
+    category: '뷰티/패션',
+    defaultTheme: 'skincare-cream',
+    blocks: [
+      'b35-skincare-hero',
+      'b06-full-image',
+      'b10-text-center',
+      'b02-img-left',
+      'b03-img-right',
+      'b05-feature-3col',
+      'b13-how-to-use',
+      'b09-gallery-3col',
+      'b07-spec-table',
+      'b14-review',
+      'b15-cta',
+      'b11-caution',
+      'b12-brand-banner',
+    ],
+    content: {
+      'b35-skincare-hero': {
+        brand: 'JEJU · PURE',
+        title: '피부가 숨쉬는\n클렌징 폼',
+        subtitle: '제주 화산 암반수 · 저자극 발포 성분 · 피부과 테스트 완료',
+      },
+      'b10-text-center': {
+        title: '세안 후, 당기지 않아야 진짜 클렌징',
+        body: '강하게 씻는 것이 아니라 부드럽게 녹여내는 방식.\n오일과 수분 균형을 무너뜨리지 않고\n메이크업과 노폐물만 정확히 제거합니다.',
+      },
+      'b02-img-left': {
+        title: '제주 화산 암반수',
+        desc: '한라산 화산암층을 통과하며\n정화된 미네랄 풍부한 암반수.\n피부 보호막을 유지하면서\n깨끗하게 세정합니다.',
+      },
+      'b03-img-right': {
+        title: '저자극 아미노산 계면활성제',
+        desc: '합성 계면활성제 대신\n아미노산 유래 천연 성분으로\n부드러운 거품을 냅니다.\n세안 후에도 촉촉한 수분막\n유지됩니다.',
+      },
+      'b05-feature-3col': {
+        items: [
+          { title: '무향 처방', desc: '합성 향료 無\n민감 피부도 안심' },
+          { title: '피부과 테스트', desc: '저자극 임상 완료\n알레르기 테스트 통과' },
+          { title: '비건 인증', desc: '동물 실험 없음\n동물성 원료 불포함' },
+        ],
+      },
+      'b13-how-to-use': {
+        items: [
+          { step: '01', title: '적당량 덜기', desc: '500원 동전 크기로 덜어\n손바닥에서 거품을 충분히 냅니다.' },
+          { step: '02', title: '부드럽게 마사지', desc: 'T존 → 볼 → 눈가 순서로\n30초 이상 가볍게 마사지합니다.' },
+          { step: '03', title: '미온수로 헹굼', desc: '미지근한 물로 깨끗이 헹군 뒤\n찬물로 마무리하면 모공이 닫힙니다.' },
+        ],
+      },
+      'b07-spec-table': {
+        title: '제품 정보',
+        rows: [
+          ['제품명', '화산 암반수 클렌징 폼 150ml'],
+          ['주요 성분', '제주 화산 암반수, 아미노산 계면활성제, 히알루론산'],
+          ['피부 타입', '전 피부 타입 (민감·건성·지성 모두 가능)'],
+          ['용량', '150ml'],
+          ['유통기한', '제조일로부터 36개월 (개봉 후 12개월)'],
+        ],
+      },
+      'b14-review': {
+        items: [
+          { stars: '★★★★★', text: '세안 후 당김이 없어요. 민감성인데\n자극 하나 없고 피부가 편안해졌어요.', name: '민감성 피부 30대' },
+          { stars: '★★★★★', text: '거품이 정말 풍성해요.\n메이크업도 한번에 다 지워지는 느낌!', name: '데일리 메이크업 유저' },
+          { stars: '★★★★☆', text: '향이 없는 게 처음엔 어색했는데\n지금은 오히려 그게 더 좋아요.', name: '무향 선호 고객' },
+        ],
+      },
+      'b15-cta': {
+        headline: '세안의 기준을 바꾸세요',
+        sub: '무료 배송 · 7일 샘플 키트 증정 · 피부과 테스트 완료',
+      },
+      'b11-caution': {
+        items: [
+          '사용 후 이상이 생기면 즉시 사용을 중단하세요',
+          '눈에 들어가지 않도록 주의하고, 들어갔을 경우 즉시 물로 씻으세요',
+          '어린이 손에 닿지 않는 곳에 보관하세요',
+        ],
+      },
+      'b12-brand-banner': {
+        name: 'JEJU·PURE',
+        slogan: '제주 자연에서 시작된 순한 스킨케어',
+      },
+    },
+  },
+
+  // ─── 11. 컬러 코스메틱형 (뷰티/패션) ─────────────────────────────────────
+  {
+    id: 'color-cosmetic',
+    name: '컬러 코스메틱형',
+    desc: '발색과 색상 다양성을 강조하는 립·쿠션·파운데이션 특화 구성',
+    category: '뷰티/패션',
+    defaultTheme: 'cosmetic-rose',
+    blocks: [
+      'b38-cosmetic-hero',
+      'b03-img-right',
+      'b10-text-center',
+      'b05-feature-3col',
+      'b06-full-image',
+      'b02-img-left',
+      'b04-feature-2col',
+      'b09-gallery-3col',
+      'b14-review',
+      'b15-cta',
+      'b11-caution',
+      'b12-brand-banner',
+    ],
+    content: {
+      'b38-cosmetic-hero': {
+        label: 'Color Cosmetic',
+        title: '한 번 바르면\n하루 종일',
+        subtitle: '17가지 컬러 · 롱래스팅 12h',
+        badge1: 'SPF40 PA++',
+        badge2: 'Vegan',
+        hashtags: ['#데일리립', '#촉촉립', '#롱래스팅립'],
+      },
+      'b03-img-right': {
+        title: '얇게, 균일하게, 오래',
+        desc: '한 번 터치로 얇고 균일하게 밀착됩니다.\n덧바름 없이 12시간 동안 발색이 유지되며\n지성 피부에도 번들거림 없이 매트하게.',
+      },
+      'b10-text-center': {
+        title: '당신의 메이크업 루틴을 바꾸다',
+        body: '가볍게 바르는 것만으로 입술이 살아납니다.\n모이스처 베이스가 촉촉함을 유지하면서\n선명한 발색이 오래 지속됩니다.',
+      },
+      'b05-feature-3col': {
+        items: [
+          { title: '롱래스팅 12h', desc: '식사 후에도 발색 유지\n터치업 불필요' },
+          { title: 'SPF40 PA++', desc: '선케어까지 한번에\n자외선 차단 기능 내장' },
+          { title: '17가지 컬러', desc: '일상부터 포인트까지\n내 피부 맞는 색 선택' },
+        ],
+      },
+      'b02-img-left': {
+        title: '촉촉한 모이스처 베이스',
+        desc: '히알루론산·마카다미아 오일 복합 베이스가\n입술 수분을 24시간 유지합니다.\n건조한 계절에도 갈라짐 없이\n촉촉하게 밀착됩니다.',
+      },
+      'b04-feature-2col': {
+        items: [
+          { title: '피부과 테스트', desc: '민감한 입술 피부도 안전\n저자극 임상 시험 완료' },
+          { title: '비건·크루얼티 프리', desc: '동물 실험 없는 클린 포뮬라\n비건 인증 원료 사용' },
+        ],
+      },
+      'b14-review': {
+        items: [
+          { stars: '★★★★★', text: '점심 먹고도 발색이 살아있어요.\n이 정도면 진짜 롱래스팅 맞네요!', name: '직장인 메이크업 유저' },
+          { stars: '★★★★★', text: '촉촉하면서 발색이 선명해요.\n건성 입술인데 전혀 안 갈라져요.', name: '건조 입술 고민 고객' },
+          { stars: '★★★★☆', text: '컬러가 너무 다양해서 두 개 샀어요.\nSPF 있는 거 너무 좋아요.', name: '뷰티 블로거' },
+        ],
+      },
+      'b15-cta': {
+        headline: '내 컬러를 찾아보세요',
+        sub: '무료 배송 · 컬러 매칭 서비스 · 첫 구매 15% 할인',
+      },
+      'b11-caution': {
+        items: [
+          '눈에 들어가지 않도록 주의하고 들어갔을 경우 즉시 물로 씻어주세요',
+          '이상이 생기면 즉시 사용을 중단하고 피부과 전문의와 상담하세요',
+          '개봉 후 12개월 이내 사용을 권장합니다',
+        ],
+      },
+      'b12-brand-banner': {
+        name: 'ROSYSHOW',
+        slogan: '당신의 컬러를 완성합니다',
+      },
+    },
+  },
+
+  // ─── 12. 라이프스타일 클래스형 (공통) ────────────────────────────────────
+  {
+    id: 'lifestyle-class',
+    name: '라이프스타일 클래스형',
+    desc: '스펙 없이 브랜드 감성과 스토리로 이끄는 클래스·공방·브랜드 소개 구성',
+    category: '공통',
+    defaultTheme: 'minimal-white',
+    blocks: [
+      'b39-minimal-hero',
+      'b10-text-center',
+      'b06-full-image',
+      'b02-img-left',
+      'b03-img-right',
+      'b06-full-image',
+      'b09-gallery-3col',
+      'b10-text-center',
+      'b08-gallery-2col',
+      'b15-cta',
+      'b12-brand-banner',
+    ],
+    content: {
+      'b39-minimal-hero': {
+        label: 'TRADITIONAL CERAMIC CLASS',
+        title: 'Touch of Korea',
+        subtitle: '한국 전통 도예의 아름다움을 직접 경험하세요',
+      },
+      'b10-text-center': {
+        title: 'Tradition, shaped by hand',
+        body: '수백 년 이어온 한국 도예의 숨결을\n두 손으로 직접 빚어봅니다.\n흙의 감촉, 물레 위의 침묵, 가마 속 기다림.',
+      },
+      'b02-img-left': {
+        title: '장인의 손에서',
+        desc: '20년 경력의 도예 장인이\n처음부터 끝까지 함께합니다.\n초보자도 안심하고 시작할 수 있습니다.',
+      },
+      'b03-img-right': {
+        title: '나만의 작품으로',
+        desc: '직접 만든 도자기는\n소성(굽기) 과정을 거쳐\n포장하여 가져가실 수 있습니다.',
+      },
+      'b10-text-center': {
+        title: 'About Class',
+        body: '서울 종로구 위치 · 소규모 8인 정원 · 2시간 진행\n재료·소성비 포함 · 예약 후 방문 가능\n단체·기업 클래스 별도 문의',
+      },
+      'b15-cta': {
+        headline: '지금 클래스를 예약하세요',
+        sub: '소규모 8인 정원 · 당일 예약 가능 · 선물 포장 서비스',
+      },
+      'b12-brand-banner': {
+        name: 'TOUCHOFKOREA',
+        slogan: '손으로 잇는 전통, 두 손으로 만드는 오늘',
+      },
+    },
+  },
+
+  // ─── 13. 식품 간결형 (식품/건강) ──────────────────────────────────────────
+  {
+    id: 'food-compact',
+    name: '식품 간결형',
+    desc: '강한 컬러와 임팩트 있는 짧은 구성으로 스낵·음료·즉석식품에 최적화',
+    category: '식품/건강',
+    defaultTheme: 'bold-red',
+    blocks: [
+      'b37-bold-product-banner',
+      'b02-img-left',
+      'b03-img-right',
+      'b05-feature-3col',
+      'b04-feature-2col',
+      'b07-spec-table',
+      'b14-review',
+      'b15-cta',
+      'b11-caution',
+      'b12-brand-banner',
+    ],
+    content: {
+      'b37-bold-product-banner': {
+        brand: 'FRESHLAB',
+        title: 'ORIGINAL\nMINT',
+        tagline: 'The Great Balance of Natural Extracts and Fresh Peppermint',
+        specs: 'Natural Extracts 34.56%  ·  Safe To Use  ·  Certified',
+      },
+      'b02-img-left': {
+        title: '자연에서 온 상쾌함',
+        desc: '인공 향료 없이 천연 페퍼민트 오일만 사용합니다.\n자극 없이 오래 지속되는 쿨링감으로\n언제 어디서나 입안을 상쾌하게.',
+      },
+      'b03-img-right': {
+        title: 'Strong Mint 라인업',
+        desc: '더 강한 쿨링감을 원한다면 STRONG MINT.\n페퍼민트 함량을 두 배로 높여\n강렬하고 오래가는 청량함을 제공합니다.',
+      },
+      'b05-feature-3col': {
+        items: [
+          { title: '천연 페퍼민트', desc: '인공 향료 Zero\n천연 오일 100%' },
+          { title: '무색소', desc: '합성 색소 없는\n클린 처방' },
+          { title: '소형 휴대', desc: '어디서나 간편하게\n포켓 사이즈 패키지' },
+        ],
+      },
+      'b04-feature-2col': {
+        items: [
+          { title: 'Natural Extracts', desc: '천연 식물 추출물로\n입냄새 근본 케어' },
+          { title: 'Safe To Use', desc: '식품안전 기준\n전 성분 안전 인증' },
+        ],
+      },
+      'b07-spec-table': {
+        title: '제품 정보',
+        rows: [
+          ['제품명', 'ORIGINAL MINT / STRONG MINT'],
+          ['주요 성분', '천연 페퍼민트 오일, 자일리톨'],
+          ['함량', '페퍼민트 오일 34.56% (ORIGINAL) / 36.28% (STRONG)'],
+          ['용량', '1통 20정'],
+          ['인증', 'Safe To Use Certified'],
+        ],
+      },
+      'b14-review': {
+        items: [
+          { stars: '★★★★★', text: '향이 인공적이지 않고 자연스러워요.\n강한 민트 싫어하는 저도 딱 좋아요.', name: '민트 마니아' },
+          { stars: '★★★★★', text: 'STRONG 버전은 진짜 강렬해요.\n커피 마신 후 하나 먹으면 완벽.', name: '직장인 구매자' },
+          { stars: '★★★★☆', text: '사무실 서랍에 항상 넣어두고 있어요.\n포장도 깔끔하고 선물하기도 좋아요.', name: '재구매 고객' },
+        ],
+      },
+      'b15-cta': {
+        headline: '지금 바로 상쾌하게',
+        sub: '묶음 구매 할인 · 무료 배송 · 당일 출고',
+      },
+      'b11-caution': {
+        items: [
+          '어린이(만 3세 이하)에게는 질식 위험이 있으므로 주의하세요',
+          '직사광선 및 고온 환경에 보관하지 마세요',
+          '과다 섭취하지 마시고 하루 권장량을 지켜주세요',
+        ],
+      },
+      'b12-brand-banner': {
+        name: 'FRESHLAB',
+        slogan: '자연의 상쾌함, 그대로 담다',
+      },
+    },
+  },
+
 ];

@@ -11,6 +11,7 @@ const ARTBOARD_COLOR = '#ffffff';
 
 let canvas = null;
 let artboard = null;           // 출력 영역 사각형
+let _pendingPlaceholder = null; // 더블클릭으로 열린 파일 다이얼로그의 대상 플레이스홀더
 let currentZoom = 1;
 const MIN_ZOOM = 0.1;
 const MAX_ZOOM = 4;
@@ -272,6 +273,7 @@ function bindCanvasEvents() {
   canvas.on('mouse:dblclick', (opt) => {
     const obj = opt.target;
     if (obj && obj._isPlaceholder) {
+      _pendingPlaceholder = obj; // 파일 다이얼로그 열기 전에 저장
       document.getElementById('placeholder-upload')?.click();
     }
   });
@@ -439,4 +441,7 @@ window.CanvasManager = {
   copySelected,
   pasteSelected,
   bindZoomButtons,
+  getPendingPlaceholder: () => _pendingPlaceholder,
+  setPendingPlaceholder: (obj) => { _pendingPlaceholder = obj; },
+  clearPendingPlaceholder: () => { _pendingPlaceholder = null; },
 };

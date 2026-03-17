@@ -58,9 +58,9 @@ window.Themes = [
       subtext:    '#ABABAB',
       textMuted:  '#6E6E6E',
     },
-    fonts: { heading: 'Nanum Square', body: 'Noto Sans KR' },
-    headingWeight: '800',
-    bodyWeight: '400',
+    fonts: { heading: 'Noto Serif KR', body: 'Noto Sans KR' },
+    headingWeight: '600',
+    bodyWeight: '300',
   },
   {
     id: 'natural-organic',
@@ -241,6 +241,96 @@ window.Themes = [
     fonts: { heading: 'Nanum Square', body: 'Noto Sans KR' },
     headingWeight: '900',
     bodyWeight: '400',
+  },
+
+  // ── 신규: 샘플 페이지 매칭 테마 ───────────────────────────────────────────
+
+  // 스킨케어 크림 — SES SAKNOON CLEANSER 스타일 (밝은 베이지 배너)
+  {
+    id: 'skincare-cream',
+    name: '스킨케어 크림',
+    desc: '클렌저, 세럼, 크림 — 따뜻한 크림 배너',
+    colors: {
+      bg:         '#FAF7F2',
+      bgAlt:      '#F5EDE2',
+      surface:    '#EDE0CF',
+      border:     '#D6C4AD',
+      hero:       '#EDE4D6',   // 밝은 웜 베이지 → 라이트 배너
+      accent:     '#8B7355',
+      accent2:    '#C4956A',
+      text:       '#2C1A0E',
+      subtext:    '#6B4E34',
+      textMuted:  '#9E8070',
+    },
+    fonts: { heading: 'Nanum Myeongjo', body: 'Noto Serif KR' },
+    headingWeight: '700',
+    bodyWeight: '400',
+  },
+
+  // 미니멀 화이트 — Touch of Korea 스타일 (오프화이트 배너, 얇은 서체)
+  {
+    id: 'minimal-white',
+    name: '미니멀 화이트',
+    desc: '공방, 클래스, 라이프스타일 — 화이트 미니멀',
+    colors: {
+      bg:         '#FFFFFF',
+      bgAlt:      '#F9F8F6',
+      surface:    '#F2F1EE',
+      border:     '#E0DDD8',
+      hero:       '#F5F4F1',   // 오프화이트 → 라이트 배너
+      accent:     '#5A5550',
+      accent2:    '#9A948E',
+      text:       '#222220',
+      subtext:    '#666460',
+      textMuted:  '#AAAAAA',
+    },
+    fonts: { heading: 'Nanum Myeongjo', body: 'Noto Sans KR' },
+    headingWeight: '700',
+    bodyWeight: '300',
+  },
+
+  // 코스메틱 로즈 — BLISS TINT 스타일 (소프트 핑크 배너)
+  {
+    id: 'cosmetic-rose',
+    name: '코스메틱 로즈',
+    desc: '립, 파운데이션, 쿠션 — 코랄 핑크',
+    colors: {
+      bg:         '#FFF5F7',
+      bgAlt:      '#FFE8EE',
+      surface:    '#FFD5E0',
+      border:     '#FFB8CC',
+      hero:       '#FFADC2',   // 소프트 코랄 핑크 → 라이트 배너
+      accent:     '#E83265',
+      accent2:    '#FF5580',
+      text:       '#2D0015',
+      subtext:    '#7A2045',
+      textMuted:  '#B07085',
+    },
+    fonts: { heading: 'Noto Serif KR', body: 'Noto Sans KR' },
+    headingWeight: '300',
+    bodyWeight: '300',
+  },
+
+  // 볼드 레드 — ORIGINAL MINT 스타일 (강렬한 레드 배너, 화이트 바디)
+  {
+    id: 'bold-red',
+    name: '볼드 레드',
+    desc: '스낵, 껌, 즉석식품 — 임팩트 레드',
+    colors: {
+      bg:         '#FFFFFF',
+      bgAlt:      '#FFF5F5',
+      surface:    '#FFE8E8',
+      border:     '#FFCCCC',
+      hero:       '#CC2200',   // 강렬한 레드 → 다크 배너 (흰 텍스트)
+      accent:     '#CC2200',
+      accent2:    '#FF6600',
+      text:       '#1A0000',
+      subtext:    '#4A1010',
+      textMuted:  '#8A4040',
+    },
+    fonts: { heading: 'Black Han Sans', body: 'Noto Sans KR' },
+    headingWeight: '400',
+    bodyWeight: '300',
   },
 ];
 
